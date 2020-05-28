@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-film">
+    <img src="{{url_for('static',filename='images/movie-image.jpg')}}"" alt="projector image">
+</div>
+<h2>New to RecoMedia</h2>
+<h3>Sign up <span>here</span> to get started</h3>
+<div class="row">
+    <form action="" class="col s12">
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="username" type="text" class="validate">
+                <label for="username" class="active">Username</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="password" type="password" class="validate">
+                <label for="password" class="active">Password</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="c_password" type="password" class="validate" oninput="check(this)" />
+                <label for="c_password" class="active">Confirm Password</label>
+            </div>
+        </div>
+        <div class="row" id="err-msg">
+        </div>
+        <button class="btn waves-effect waves-light" type="submit" name="action">Register Profile
+            <i class="material-icons right"></i>
+        </button>
+    </form>
+</div>
+<script language='javascript' type='text/javascript'>
+    function check(input) {
+        console.log('checker function accessed.')
+        if ( input.value != $('#password').val() ) {
+            console.log('passwords not equal accessed.\n'+$('#password').val()+' , '+input.value)
+            $("#err-msg").html("<p>Password Must be Matching.</p>");
+        } else {
+            // input is valid -- reset the error message
+            console.log('passwords equal accessed.\n'+$('#password').val()+' , '+input.value)
+            $("#err-msg").html("<p></p>");
+        }
+    }
+    $(document).ready(function() {
+        M.updateTextFields();
+    });
+</script>
+{% endblock %}
+
+
