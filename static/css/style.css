@@ -1,0 +1,51 @@
+
+
+h1 {
+    margin: 1.8rem 0;
+    font-family: "Bevan", sans-serif;
+    line-height: 25%;
+    font-size: 2.2rem;
+    color: #000;
+}
+nav .nav-wrapper {
+    background-color: beige;
+    width: 100vw;
+}
+nav ul {
+    margin: 0 20px;
+}
+nav ul a {
+    color: #000;
+}
+
+p, li {
+    font-family: "Oxygen", sans-serif;
+    color: #000;
+}
+@media screen and (min-width: 900px) {
+    h1 {
+        font-size: 2.8rem;
+    }
+}
+/*********************************************** Index page    */
+
+.bg-film {
+    position: relative;
+    background-color: #594757;
+}
+
+.bg-film img {
+    max-width: 100vw;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 50%; 
+}
+
+@media screen and (min-width: 450px) {
+    .bg-film img {
+        width: 450px;
+    }
+}
