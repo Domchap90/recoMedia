@@ -6,22 +6,31 @@
 <h2>New to RecoMedia</h2>
 <h3>Sign up <span>here</span> to get started</h3>
 <div class="row">
-    <form action="" class="col s12">
+    <form action="{{url_for('insert_user') }}" method="POST" class="col s12">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+            <div class="{{category}}">{{ message }}</div>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
         <div class="row">
             <div class="input-field col s12">
-                <input id="username" type="text" class="validate">
+                <input id="username" type="text" name="username" class="validate" /required>
                 <label for="username" class="active">Username</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input id="password" type="password" class="validate">
+                <input id="password" type="password" name="password" class="validate" /required>
                 <label for="password" class="active">Password</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input id="c_password" type="password" class="validate" oninput="check(this)" />
+                <input id="c_password" type="password" name="c_password" class="validate" oninput="check(this)" /required>
                 <label for="c_password" class="active">Confirm Password</label>
             </div>
         </div>
@@ -32,12 +41,14 @@
         </button>
     </form>
 </div>
+<p>{{usernames}}</p>
 <script language='javascript' type='text/javascript'>
     function check(input) {
         console.log('checker function accessed.')
         if ( input.value != $('#password').val() ) {
             console.log('passwords not equal accessed.\n'+$('#password').val()+' , '+input.value)
-            $("#err-msg").html("<p>Password Must be Matching.</p>");
+            $("div #err-msg").html("Password Must be Matching.");
+            $("#err-msg").css("color","red");
         } else {
             // input is valid -- reset the error message
             console.log('passwords equal accessed.\n'+$('#password').val()+' , '+input.value)
