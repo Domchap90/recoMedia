@@ -26,13 +26,11 @@ def insert_user():
     usernames=login_collection.find({},{"username":1})
     session['username']=request.form.get('username')
     password=request.form.get('password')
-    print(session['username']+" , "+password)
     if login_collection.find_one({'username':session['username']}):
         flash("Username already exists", 'error')
         return redirect(url_for('home'))
     else:
         login_collection.insert_one({'username':session['username'], 'password': password })
-        print( login_collection.find_one({session['username']:password}) )
         film_collection=mongo.db.films
         user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
         return render_template('userprofile.html',username=session['username'],films=user_films)
@@ -50,14 +48,8 @@ def userprofile(username,films):
 def insert_rating(username):
     form=request.form.to_dict()
     film_collection=mongo.db.films
-    #id=film_collection.find({'title':form['film_title']})._id.str
-    #ratings_num=film_collection.find_one({'title':form['film_title']})['ratings'].length
-    print()
     if film_collection.find_one({'title':form['film_title'], 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
         """ updates rating from DB where film and this user's rating already exist """
-        print("first condition accessed.")
-        print('ratings username '+str(film_collection.find_one({'ratings.username':session['username'] } )))
-        print('film title '+str(film_collection.find_one({'title':form['film_title']})))
         film_collection.update( 
             {'title':form['film_title'], 'ratings.username':session['username'] },
             {'$set': {'title':form['film_title'], 'release_date': form['release_date'],
@@ -65,21 +57,17 @@ def insert_rating(username):
             )
     elif film_collection.find_one({'title':form['film_title']}):
         """ inserts rating into pre-existing film which this user hasn't rated yet """
-        print("second condition accessed.")
         film_collection.update( 
             {'title':form['film_title'] },
             {'$push': { 'ratings' : {'username': session['username'] ,'rating':form['rating'], 'review':form['review']} }}
             )
     else:
+        """ film not currently listed in db """
         film_collection.insert_one({
             'title':form['film_title'],'release_date':form['release_date'],'director':form['director'],
             'ratings':[{'username':session['username'], 'rating':form['rating'], 'review':form['review'] }]
             }) 
-    
-    #if film_collection.ratings.length>ratings_num:
-    #    flash("Film rating successfully inserted.")
-    #else:
-    #    flash("Film rating was updated.")
+
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
     return redirect(url_for('userprofile',username=username, films=user_films))
 
