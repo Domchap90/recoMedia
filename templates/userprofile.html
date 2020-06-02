@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Welcome {{username}}</h2>
+
+<h3>Your Films</h3>
+
+{% for film in films %}
+
+    <h4>{{film.title}}</h4>
+    <ul>
+        <li>{{film.release_date}}</li>
+        <li>Director:{{film.director}}</li>
+    {% for rate in film.ratings %}
+    {% if rate.username==username %}        
+        <li>Rating: {{rate.rating}}</li>
+        <li>Review: {{rate.review}}</li>
+    {% endif %}
+    {% endfor %}
+    </ul>
+{% endfor %}
+
+<h3>Rate your first film now.</h3>
+
+<form action="{{url_for('insert_rating', username='{{username}}' ) }}" method="POST" class="col s12">
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	<ul class=flashes>
+		{% for category, message in messages %}
+		<div class="{{category}}">{{ message }}</div>
+		{% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+	<div class="row">
+		<div class="input-field col s12">
+			<input id="film_title" type="text" name="film_title" class="validate">
+			<label for="film_title" class="active">Film title</label>
+		</div>
+	</div>
+	<div class="row">
+		<div class="input-field col s12">
+			<input id="release_date" type="text" name="release_date" class="datepicker">
+			<label for="release_date" class="active">Release date</label>
+		</div>
+	</div>
+	<div class="row">
+		<div class="input-field col s12">
+			<input id="director" type="text" name="director" class="validate" />
+			<label for="director" class="active">Director</label>
+		</div>
+	</div>
+	<div class="row">
+		<div class="input-field col s12">
+			<input id="rating" type="number" name="rating" class="validate" oninput="check(this)" />
+			<label for="rating" class="active">Rating</label>
+		</div>
+	</div>
+	<div class="row">
+		<div class="input-field col s12">
+			<textarea id="review" name="review" class="materialize-textarea"></textarea>
+			<label for="review">Review</label>
+		</div>
+	</div>
+	<div class="row" id="err-msg">
+	</div>
+	<button class="btn waves-effect waves-light" type="submit" name="action">Create Rating
+        <i class="material-icons right"></i>
+    </button>
+</form>
+
+<script language='javascript' type='text/javascript'>
+
+    var currYear = (new Date()).getFullYear();
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+			defaultDate: new Date(2000,0,01),
+			maxDate: new Date(),
+			yearRange: [1928, currYear],
+			format: "yyyy/mm/dd"
+        });
+    });
+</script>
+
+{% endblock %}
