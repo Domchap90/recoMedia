@@ -8,6 +8,7 @@
 {% for film in films %}
 
     <h4>{{film.title}}</h4>
+
     <ul>
         <li>{{film.release_date}}</li>
         <li>Director:{{film.director}}</li>
@@ -33,10 +34,13 @@
 	{% endif %}
 	{% endwith %}
 	<div class="row">
-		<div class="input-field col s12">
-			<input id="film_title" type="text" name="film_title" class="validate">
+		<div class="input-field col s6">
+			<input id="film_title" type="text" name="film_title" class="validate" onkeyup="getFilm(this)">
 			<label for="film_title" class="active">Film title</label>
 		</div>
+        <div class="col s6" id="film-data">
+            
+        </div>
 	</div>
 	<div class="row">
 		<div class="input-field col s12">
@@ -70,7 +74,7 @@
 </form>
 
 <script language='javascript' type='text/javascript'>
-
+    var data;
     var currYear = (new Date()).getFullYear();
     $(document).ready(function(){
         $('.datepicker').datepicker({
@@ -80,6 +84,31 @@
 			format: "yyyy/mm/dd"
         });
     });
+    function getFilm(filmname){
+        $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
+            $("#film-data").html("");
+            var rawstring=JSON.stringify(rawdata);
+            $("#film-data").html("<p>"+rawstring+"</p>");
+            data = JSON.parse(rawstring)
+            //for (year in data) {
+                var title = data.Search[0].Title;
+                var year= data.Search[0].Year;
+            var imdbID= data.Search[0].imdbID;
+            //for reading only
+            var imdburl="https://www.imdb.com/title/"+data.Search[0].imdbID+"/";
+            var posterurl=data.Search[0].Poster;
+            //if (filmname.value)
+            var arrayNoDuplicatesID = [];
+            for ( film of rawdata.Search){
+                console.log(film.imdbID)
+                if (filmname.value.toLowerCase()===film.Title.toLowerCase() && arrayNoDuplicatesID.indexOf(film.imdbID)===-1 ){
+                    console.log("condition accessed.")
+                    $("#film-data").append("<img src="+film.Poster+"/><p>"+film.Title+", "+film.Year+"</p>");
+                    arrayNoDuplicatesID.push(film.imdbID);
+                }
+            }
+        })
+    }
 </script>
 
 {% endblock %}
