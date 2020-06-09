@@ -11,9 +11,11 @@ app = Flask(__name__)
 app.config["MONGO_DBNAME"] = 'recomediaDB'
 app.config["MONGO_URI"] = os.environ.get('MONGO_URI')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+#app.config['API_KEY'] = os.environ.get('API_KEY')
 
 mongo = PyMongo(app)
-
+#url = 'http://img.omdbapi.com/?apikey=[yourkey]&'
+#datarequest = 'http://www.omdbapi.com/?apikey=[yourkey]&'
 
 @app.route('/')
 def home(): 
@@ -47,26 +49,36 @@ def userprofile(username,films):
 @app.route('/insert_rating/<username>', methods=['POST','GET'])
 def insert_rating(username):
     form=request.form.to_dict()
+    print(request.form.to_dict())
+    f=request.form
+    select_ID=f.get('imdbID')
+    select_cast=f.get('Actors')
+    select_film=f.get('film_title')
+    select_year=f.get('Year')
+    print("\n select_ID is "+str(select_ID)+"\n select_cast is "+str(select_cast)+"\n select_film is "+str(select_film)+"\n select_year is "+str(select_year))
     film_collection=mongo.db.films
-    if film_collection.find_one({'title':form['film_title'], 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
+    if film_collection.find_one({'imdbID':f.get('imdbID'), 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
         """ updates rating from DB where film and this user's rating already exist """
         film_collection.update( 
-            {'title':form['film_title'], 'ratings.username':session['username'] },
-            {'$set': {'title':form['film_title'], 'release_date': form['release_date'],
-            'director':form['director'], 'ratings.$.rating':form['rating'], 'ratings.$.review':form['review']} }
+            {'imdbID':f.get('imdbID'), 'ratings.username':session['username'] },
+            {'$set': {'ratings.$.rating':f.get('rating'), 'ratings.$.review':form['review']} }
             )
-    elif film_collection.find_one({'title':form['film_title']}):
+        print("Rating updated for this film.")
+    elif film_collection.find_one({'imdbID':f.get('imdbID')}):
         """ inserts rating into pre-existing film which this user hasn't rated yet """
         film_collection.update( 
-            {'title':form['film_title'] },
-            {'$push': { 'ratings' : {'username': session['username'] ,'rating':form['rating'], 'review':form['review']} }}
+            {'imdbID':f.get('imdbID') },
+            {'$push': { 'ratings' : {'username': session['username'] ,'rating':f.get('rating'), 'review':form['review']} }}
             )
+        print("Rating added for this film. (option 2)")
     else:
         """ film not currently listed in db """
         film_collection.insert_one({
-            'title':form['film_title'],'release_date':form['release_date'],'director':form['director'],
-            'ratings':[{'username':session['username'], 'rating':form['rating'], 'review':form['review'] }]
+            'title':form['film_title'],'imdbID':form['imdbID'],'year':f.get('Year'),'director':f.get('Director'), 
+            'cast':f.get('Actors'), 'runtime':f.get('Runtime'),'ratings':[{'username':session['username'],
+            'rating':f.get('rating'), 'review':form['review'] }]
             }) 
+        print("Rating + Film inserted. (option 3)")
 
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
     return redirect(url_for('userprofile',username=username, films=user_films))

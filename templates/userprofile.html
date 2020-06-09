@@ -10,8 +10,11 @@
     <h4>{{film.title}}</h4>
 
     <ul>
-        <li>{{film.release_date}}</li>
+        <li>Imdb ID:{{film.imdbID}}</li>
+        <li>Year:{{film.year}}</li>
+        <li>Cast:{{film.cast}}</li>
         <li>Director:{{film.director}}</li>
+        <li>Runtime:{{film.runtime}}</li>
     {% for rate in film.ratings %}
     {% if rate.username==username %}        
         <li>Rating: {{rate.rating}}</li>
@@ -35,26 +38,56 @@
 	{% endwith %}
 	<div class="row">     
 		<div class="input-field col s6">
-			<input id="film_title" type="text" name="film_title" class="validate autocomplete" onblur="getFilms(this)" onkeyup="getSuggestions(this)" /required> <!-- onkeyup="getSuggestions(this)" -->
-			<label for="film_title" class="active">Film title</label>
+            
+			<input id="film_title" type="text" name="film_title" class="validate autocomplete" onblur="getFilms(this)" onkeyup="getSuggestions(this)" /required>
+			<label for="film_title" class="active"><span class="material-icons">search</span>Film title</label>
 		</div>
         <div class="row col s6" id="film-display">
-            <!--<div class="film-data" id="title1"></div>
-            <div class="film-data" id="title2"></div>
-            <div class="film-data" id="title3"></div>-->
         </div>
+	</div>
+    <div class="row">
+		<div class="input-field col s12">
+            <select id="imdbID" name="imdbID" required>
+                <option value="" disabled selected>Imdb ID</option>              
+            </select>
+			<label>Imdb ID</label>
+		</div>
 	</div>
 	<div class="row">
 		<div class="input-field col s12">
-            <select id="years" name='years' onblur="getFilm(this)" /required>
+            <select id="Year" name="Year" onblur="getFilm(this)" required>
                 <option value="" disabled selected>Choose which year</option>              
             </select>
 			<label>Year</label>
 		</div>
 	</div>
+        <div class="row">     
+		<div class="input-field col s6">
+            <select id="Director" name="Director" required>
+                             
+            </select>
+			<label>Director</label>
+		</div>
+    </div>
+    <div class="row">     
+		<div class="input-field col s6">
+			<select id="Actors" name="Actors" required>
+                             
+            </select>
+			<label>Cast</label>
+		</div>
+    </div>
+    <div class="row">
+		<div class="input-field col s3">
+            <select id="Runtime" name="Runtime" required>
+                <option value="" disabled selected>Runtime</option>              
+            </select>
+			<label>Runtime</label>
+		</div>
+	</div>
 	<div class="row">
 		<div class="input-field col s12">
-            <select id="ratings" /required>
+            <select id="rating" name="rating" required>
                 <option value="" disabled selected>Give a rating</option>
                 <option value="0">0</option>  
                 <option value="1">1</option>
@@ -75,10 +108,11 @@
 	</div>
 	<div class="row">
 		<div class="input-field col s12">
-			<textarea id="review" name="review" class="materialize-textarea" /required></textarea>
+			<textarea id="review" name="review" class="materialize-textarea" required></textarea>
 			<label for="review">Review</label>
 		</div>
 	</div>
+
 	<div class="row" id="err-msg">
 	</div>
 	<button class="btn waves-effect waves-light" type="submit" name="action">Create Rating
@@ -87,7 +121,6 @@
 </form>
 
 <script language='javascript' type='text/javascript'>
-    var omdb_data;
    // var film_options;
     var elems;
     var instances;
@@ -96,14 +129,8 @@
     $(document).ready(function(){
         //$('select').formSelect();
         elems = document.querySelectorAll('select');
-        /*$('.datepicker').datepicker({
-			defaultDate: new Date(2000,0,01),
-			maxDate: new Date(),
-			yearRange: [1928, currYear],
-			format: "yyyy/mm/dd"
-        });*/
         $('#years').on('change', function() {
-            console.log('click registered.')
+            console.log('change registered.')
             console.log($(this).val())
             let year=$(this).val();
             getFilm(year);
@@ -132,52 +159,79 @@
            
 	function getFilms(filmname){
 	    $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
-            //var elems = document.querySelectorAll('select');
-            //var rawstring=JSON.stringify(rawdata);
-            //var rawstring=JSON.stringify(rawdata);
-            //omdb_data = JSON.parse(rawstring)
-            //var imdburl="https://www.imdb.com/title/"+omdb_data.Search[0].imdbID+"/";
-
             /**** clear previous search data ****/
             $("#film-display").html("");
-            //$(".film-data").html("");
             $('#years').html(`<option value="" disabled selected>Choose which year</option>`);
+            $('#imdbID').html(`<option value="" disabled selected>Imdb ID</option>`);
             var year_object = {};
 	        var arrayNoDuplicatesID = [];
 	        var id = 0;
 	        for ( film of rawdata.Search){
-	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && arrayNoDuplicatesID.indexOf(film.imdbID)===-1 ){
+	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && arrayNoDuplicatesID.indexOf(film.imdbID)===-1 && film.Type==='movie'){
 	                console.log("condition accessed.")
                     year_object[film.Year] = null;
                     id++;
-                    $("#film-display").append(`<div class="film-data" id="title`+id+`"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`</p></div>`);
+                    $("#film-display").append(`<div class="film-data" id="`+film.imdbID+`"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
                     arrayNoDuplicatesID.push(film.imdbID);
-                    $('#years').append(`<option id="year`+id+`" value="`+film.Year+`" onclick="getFilm(this)">`+film.Year+`</option>`)
+                    //$('#years').append(`<option id="year`+id+`" value="`+film.Year+`" onclick="getFilm(this)">`+film.Year+`</option>`)
+                    //$('#imdbID').append(`<option value="`+film.imdbID+`">`+film.imdbID+`</option>`)
                 }
             }
-            console.log('id is: '+id)
             if (id===0){
                 $("#film-display").html("<p>Unfortunately this film doesn't exist in our database.</p>")
             }
-	        instances = M.FormSelect.init(elems, year_object);
+            //instances = M.FormSelect.init(elems, data);
+             $('#film-display > div').on('click', function() {
+                console.log('click registered.')
+                //console.log($(this).id)
+                console.log('id is '+this.id)
+                getFilm(this.id);
+            });
 	    });
     }
 
-    function getFilm(year) {
+    function getFilm(chosen_id) {
         console.log('getFilm accessed.')
         let film_title=$('#film_title').val();
-	    $.get('https://www.omdbapi.com/?s='+film_title+'&apikey=61e49492',function(rawdata){
-            $("#film-display").html("");
+        $('select').formSelect();
+	    $.get('https://www.omdbapi.com/?i='+chosen_id+'&apikey=61e49492',function(rawdata){
+            //$("#film-display").html("");
             let arrayNoDuplicatesID=[];
-            for (film of rawdata.Search){
-                console.log('film_title is '+film_title+' and film.Title is '+film.Title)
-                console.log('year is '+year+' & film.Year is '+film.Year)
-                if (film_title.toLowerCase()===film.Title.toLowerCase() && arrayNoDuplicatesID.indexOf(film.imdbID)===-1 && year===film.Year ){
-                        $("#film-display").html(`<div class="film-data" id="title1"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`</p></div>`);
+            var rawstring=JSON.stringify(rawdata);
+            omdb_data = JSON.parse(rawstring)
+            console.log('rawstring is ' +rawstring+', Actors = '+rawdata["Actors"]+' Director = '+rawdata["Director"]+' runtime= '+rawdata["Runtime"])           
+                
+                if (arrayNoDuplicatesID.indexOf(rawdata["imdbID"])===-1){
+                        //$("#film-display").html(`<div class="film-data" id="title1"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
+                    let fields=["imdbID","Year","Director","Actors","Runtime"];
+                    for ( f of fields)
+                        createElem(f, chosen_id);
+                
+                        
+                        
+                        //$("#imdbID").append(`<option value="`+rawdata["imdbID"]+`" disabled selected>`+rawdata["imdbID"]+`</option>`);
+                        /*$("#years").html(`<option value="`+rawdata["Year"]+`" disabled selected>`+rawdata["Year"]+`</option>`);
+                        $("#director").html(`<option value="`+rawdata["Director"]+`" disabled selected>`+rawdata["Director"]+`</option>`);
+                        $('#cast').html(`<option value="`+rawdata["Actors"]+`" disabled selected>`+rawdata["Actors"]+`</option>`);
+                        $('#runtime').html(`<option value="`+rawdata["Runtime"]+`" disabled selected>`+rawdata["Runtime"]+`</option>`);*/
+                        
                         arrayNoDuplicatesID.push(film.imdbID);
                 }
-            }
 
+        });
+    }
+    function createElem(parentNode, film_id) {
+        $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
+            console.log(parentNode)
+            $("#"+parentNode).empty();
+            let option=document.createElement("OPTION");
+            let att = document.createAttribute("value");       // Create a "class" attribute
+            att.value = rawdata[parentNode];                           // Set the value of the class attribute
+            option.setAttributeNode(att);                  
+            //option.attr({value: rawdata[parentNode], disabled: "disabled", selected: "selected");
+            console.log(parentNode+' is '+option.value)
+            option.innerHTML=rawdata[parentNode];
+            document.getElementById(parentNode).appendChild(option);
         });
     }
 </script>
