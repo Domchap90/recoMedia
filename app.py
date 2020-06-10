@@ -1,5 +1,6 @@
 import os
 from flask import Flask, flash, render_template, redirect, request, session, url_for
+import requests
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 
@@ -11,7 +12,7 @@ app = Flask(__name__)
 app.config["MONGO_DBNAME"] = 'recomediaDB'
 app.config["MONGO_URI"] = os.environ.get('MONGO_URI')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-#app.config['API_KEY'] = os.environ.get('API_KEY')
+app.config['API_KEY'] = os.environ.get('API_KEY')
 
 mongo = PyMongo(app)
 #url = 'http://img.omdbapi.com/?apikey=[yourkey]&'
@@ -51,11 +52,10 @@ def insert_rating(username):
     form=request.form.to_dict()
     print(request.form.to_dict())
     f=request.form
-    select_ID=f.get('imdbID')
-    select_cast=f.get('Actors')
-    select_film=f.get('film_title')
-    select_year=f.get('Year')
-    print("\n select_ID is "+str(select_ID)+"\n select_cast is "+str(select_cast)+"\n select_film is "+str(select_film)+"\n select_year is "+str(select_year))
+    r=requests.get('https://www.omdbapi.com/?i='+f.get('imdbID')+'&apikey='+app.config['API_KEY'] )
+    film_json=r.json()
+    poster=film_json['Poster']
+    print('poster url is '+poster )
     film_collection=mongo.db.films
     if film_collection.find_one({'imdbID':f.get('imdbID'), 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
         """ updates rating from DB where film and this user's rating already exist """
@@ -75,7 +75,7 @@ def insert_rating(username):
         """ film not currently listed in db """
         film_collection.insert_one({
             'title':form['film_title'],'imdbID':form['imdbID'],'year':f.get('Year'),'director':f.get('Director'), 
-            'cast':f.get('Actors'), 'runtime':f.get('Runtime'),'ratings':[{'username':session['username'],
+            'cast':f.get('Actors'), 'runtime':f.get('Runtime'), 'poster': poster,'ratings':[{'username':session['username'],
             'rating':f.get('rating'), 'review':form['review'] }]
             }) 
         print("Rating + Film inserted. (option 3)")
