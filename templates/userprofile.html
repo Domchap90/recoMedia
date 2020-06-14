@@ -4,31 +4,61 @@
 <h2>Welcome {{username}}</h2>
 
 <h3>Your Films</h3>
+{% set film_count = films.count() %}
+{% if film_count > 0 %}
+
+<p>You have rated {{ film_count }} films</p>
+
 <div class="carousel-container">
-    <div class="carousel carousel-slider center">
+    <div class="prev hide-on-med-and-down"><</div>
+    <div class="carousel carousel-slider center" data-indicators="false">
     {% for film in films %}
-
-
         <div class="carousel-item center">
-            <h4>{{film.title}}</h4>
-            <img src="{{film.poster}}" alt="">
-            <ul>
-                <li>Year:{{film.year}}</li>
-                <li>Cast:{{film.cast}}</li>
-                <li>Director:{{film.director}}</li>
-                <li>Runtime:{{film.runtime}}</li>
-            {% for rate in film.ratings %}
-            {% if rate.username==username %}        
-                <li>Rating: {{rate.rating}}</li>
-                <li>Review: {{rate.review}}</li>
+            <div class="arrow-pic-container">
+                <div class="prev hide-on-large-and-up"><</div>
+                <div class="poster-container">
+                    <img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
+                {% for rate in film.ratings %}
+                {% if rate.username==username %} 
+                    <div class="rating-overlay">
+                        <div class="rating-container">
+                            {{rate.rating}}
+                        </div>
+                    </div>
+                </div>
+                <div class="next hide-on-large-and-up">></div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <td class="left-field ">Year:</td><td class="right-field">{{film.year}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left-field ">Cast:</td><td class="right-field">{{film.cast}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left-field">Director:</td><td class="right-field">{{film.director}}</td>
+                    </tr>
+                    <tr>
+                        <td class="left-field">Runtime:</td><td class="right-field">{{film.runtime}}</td>    
+                    </tr>
+                    <tr>
+                        <td class="left-field">Review:</td><td class="right-field">{{rate.review}}</td>    
+                    </tr>
+                </table>
+            </div>
             {% endif %}
             {% endfor %}
-            </ul>
+        
         </div>
     
     {% endfor %}
     </div>
+    <div class="next hide-on-med-and-down">></div>
 </div>
+{% else %}
+<p>You don't currently have any film reviews.</p>
+{% endif %}
 
 <h3>Rate your first film now.</h3>
 
@@ -141,13 +171,15 @@
             let year=$(this).val();
             getFilm(year);
         });
-        /*let carousel = document.querySelectorAll('.carousel');
-        let carousel_init = M.Carousel.init(carousel, options);*/
-        //$('.carousel').carousel();
         $('.carousel.carousel-slider').carousel({
             fullWidth: true,
-            indicators: true
-	    });
+        });
+        $('.prev').click(function(){
+            $('.carousel').carousel('prev');
+        });
+        $('.next').click(function(){
+            $('.carousel').carousel('next');
+        });
     });
 
     function getSuggestions(filmname){
