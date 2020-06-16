@@ -53,7 +53,7 @@ p, li {
 }
 
 
-/*********************************************** User profile page    */
+/*********************************************** User profile page  - Film Carousel  */
 
 .carousel.carousel-slider {
     top: 0;
@@ -191,7 +191,9 @@ td{
     }
 }
 
-/***********************************************/
+/*********************************************** Film Carousel - End */
+
+/*********************************************** Insert form         */
 
 #film-display {
     display: flex;
@@ -214,4 +216,31 @@ td{
     max-width: 135px;
     height: auto;
     width: auto;
+}
+
+/*********************************************** Insert form - End   */
+
+/*********************************************** Films page         */
+.film-card-container{
+    display: block;
+    background-color: white;
+    padding: 15px;
+}
+.film-card{
+    /*display: flex;
+    margin: auto;
+    width: 50%;*/
+}
+.film-card .title, .film-card .year {
+    background-color: black;
+    color: white;
+    border-style: none;
+}
+.film-card .year, .film-card .avg-rating {
+    text-align: center;
+}
+.film-card .avg-rating{
+    background-color: beige;
+    color: black;
+    margin-left: 5px;
 }

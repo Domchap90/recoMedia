@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Film Rankings</h2>
+
+<h3>Top 10</h3>
+
+<div class="film-card-container">
+<table>
+{% for film in film_rankings %}
+
+    <tr class="film-card">
+        <td class="rank">{{loop.index}}</td>
+        <td class="title">{{film.title}}</td>
+        <td class="year">{{film.year}}</td>
+        <td class="avg-rating">{{film.averageRating}}</td>
+        <td class="ratings-count">({{film.ratingsCount}} ratings)</td>
+    </tr>    
+
+{% endfor %}
+</table>
+</div>
+{% endblock %}
