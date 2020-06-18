@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="center">{{film.title}}</h2>
+
+<div class="review-poster-container">
+    <div class="poster-container">
+        <img src="{{film.poster}}" alt="Poster for {{film.title}} unavailable">
+        <div class="rating-overlay">
+            <div class="rating-container">
+            {{avgRating}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="imdb-link">
+<a href="http://www.imdb.com/title/{{film.imdbID}}/" target="_blank" class="center">Visit the IMDB page: http://www.imdb.com/title/{{film.imdbID}}/ </a>
+</div>
+<div class="table-container">
+	<table>
+		<tr>
+			<td class="left-field ">Year:</td>
+			<td class="right-field">{{film.year}}</td>
+		</tr>
+		<tr>
+			<td class="left-field ">Cast:</td>
+			<td class="right-field">{{film.cast}}</td>
+		</tr>
+		<tr>
+			<td class="left-field">Director:</td>
+			<td class="right-field">{{film.director}}</td>
+		</tr>
+		<tr>
+			<td class="left-field">Runtime:</td>
+			<td class="right-field">{{film.runtime}}</td>
+		</tr>
+	</table>
+</div>
+<h3>Reviews</h3>
+
+{% for rating in film.ratings %}
+
+{% if loop.index%2==1 %}
+<div class="user-review-container row review-color-A" >
+{% else %}
+<div class="user-review-container row review-color-B" >
+{% endif %}
+    <div class="user-rating col s2">{{rating.rating}}</div>
+    <div class="user-review col s10">
+        <p>{{rating.review}}</p>
+        <span class="username">- {{rating.username}}</span>
+    </div>
+</div> 
+
+{% endfor %}
+{% endblock %}

@@ -81,7 +81,7 @@ p, li {
     position: relative;
     margin: auto;
     height: 350px;
-    width: 236px;
+    width: 236px !important;
 }
 .poster-container img{
     height: 100%;
@@ -221,6 +221,15 @@ td{
 /*********************************************** Insert form - End   */
 
 /*********************************************** Films page         */
+.table{
+    display: table;
+}
+.table-row{
+    display: table-row;
+}
+.table-cell{
+    display: table-cell;
+}
 .film-card-container{
     display: block;
     background-color: white;
@@ -244,3 +253,61 @@ td{
     color: black;
     margin-left: 5px;
 }
+
+/*********************************************** Films page  - End       */
+
+/*********************************************** Film Review         */
+
+.review-poster-container{
+    display: inline-flex;
+    justify-content: center;
+    height: 60%;
+    width: 100%;
+}
+.review-poster-container .poster-container {
+    width: auto;
+}
+.imdb-link{
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5c518;
+    font-family: "Oxygen", sans-serif;
+}
+.imdb-link a {
+    color: #000;
+    height: inherit;
+    display: flex;
+    align-items: center;
+}
+.imdb-link a:hover {
+    font-weight: bold;
+}
+#imdb-logo {
+    height: 40px;
+}
+.user-review-container.row{
+    height: 100%;
+    margin-bottom: 0px;
+    padding: 20px 0;
+}
+.review-color-A{
+    background-color: #fce181;
+}
+.review-color-B{
+    background-color: #edeae5;
+}
+.user-rating{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.user-review{
+    padding-right: 20px;
+}
+span.username {
+    float: right;
+}
+
+/*********************************************** Film Review - End       */
