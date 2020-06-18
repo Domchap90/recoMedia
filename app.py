@@ -82,7 +82,7 @@ def insert_rating(username):
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
     return redirect(url_for('userprofile',username=username, films=user_films))
 
-@app.route('/show_films', methods=['GET'])
+@app.route('/show_films')
 def show_films():
     film_collection=mongo.db.films
     film_rankings=film_collection.aggregate([
@@ -92,6 +92,7 @@ def show_films():
         },
         {"$unwind" : "$ratings"},
         {"$group": {
+            'imdbID': {'$first': '$imdbID' },
             'title' : { '$first': '$title' },
             'year': { '$first': '$year' },
             "_id":"$imdbID",
@@ -121,6 +122,16 @@ def format_title(title):
         ind=ind+1
 
     return " ".join(formatted_title)
+
+
+@app.route('/get_reviews/<filmID>/<avgRating>')
+def get_reviews(filmID, avgRating):
+    film_collection=mongo.db.films
+    print(filmID)
+    print(avgRating)
+    film=film_collection.find_one({'imdbID': filmID})
+    return render_template('reviews.html', film=film, avgRating=avgRating)
+
 
 if __name__ == "__main__":
     app.run(host=os.environ.get('IP', '0.0.0.0'),
