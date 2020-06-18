@@ -6,18 +6,18 @@
 <h3>Top 10</h3>
 
 <div class="film-card-container">
-<table>
+<div class="table">
 {% for film in film_rankings %}
-
-    <tr class="film-card">
-        <td class="rank">{{loop.index}}</td>
-        <td class="title">{{film.title}}</td>
-        <td class="year">{{film.year}}</td>
-        <td class="avg-rating">{{film.averageRating}}</td>
-        <td class="ratings-count">({{film.ratingsCount}} ratings)</td>
-    </tr>    
+    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+        <div class="table-cell rank">{{loop.index}}</div>
+        <div class="table-cell title">{{film.title}} </div>
+        <div class="table-cell year">{{film.year}}</div>
+        <div class="table-cell avg-rating">{{film.averageRating}}</div>
+        <div class="table-cell ratings-count">({{film.ratingsCount}} ratings)</div>    
+    </a>
 
 {% endfor %}
-</table>
 </div>
+</div>
+
 {% endblock %}
