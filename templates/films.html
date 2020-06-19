@@ -3,14 +3,14 @@
 
 <h2>Film Rankings</h2>
 
-<h3>Top 10</h3>
+<h3>Overall Top 10</h3>
 
 <div class="film-card-container">
 <div class="table">
-{% for film in film_rankings %}
+{% for film in overall_rankings %}
     <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
         <div class="table-cell rank">{{loop.index}}</div>
-        <div class="table-cell title">{{film.title}} </div>
+        <div class="table-cell title">{{film.title}}</div>
         <div class="table-cell year">{{film.year}}</div>
         <div class="table-cell avg-rating">{{film.averageRating}}</div>
         <div class="table-cell ratings-count">({{film.ratingsCount}} ratings)</div>    
@@ -20,4 +20,41 @@
 </div>
 </div>
 
+<h3>View other Top 10 rankings</h3>
+
+<h4>By Genre</h4>
+<div class="genre-grid-container">
+    <div class="genre-box-grid">
+        <div id="Animation" class="genre-box" onclick="">Animation</div>
+        <div id="Action" class="genre-box">Action</div>
+        <div id="Sci-fi" class="genre-box">Sci-fi</div>
+        <div id="Comedy" class="genre-box">Comedy</div>
+        <div id="Crime" class="genre-box">Crime</div>
+        <div id="Thriller" class="genre-box">Thriller</div>
+        <div id="Romance" class="genre-box">Romance</div>
+        <div id="Horror" class="genre-box">Horror</div>
+        <div id="Fantasy" class="genre-box">Fantasy</div>
+    </div>
+</div>
+
+<h3>Genre Top 10</h3>
+
+<div class="film-card-container">
+<div class="table">
+{% for film in overall_rankings %}
+    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+        <div class="table-cell rank">{{loop.index}}</div>
+        <div class="table-cell title">{{film.title}}</div>
+        <div class="table-cell year">{{film.year}}</div>
+        <div class="table-cell avg-rating">{{film.averageRating}}</div>
+        <div class="table-cell ratings-count">({{film.ratingsCount}} ratings)</div>    
+    </a>
+
+{% endfor %}
+</div>
+</div>
+
+<script>
+
+</script>
 {% endblock %}

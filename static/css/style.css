@@ -81,7 +81,7 @@ p, li {
     position: relative;
     margin: auto;
     height: 350px;
-    width: 236px !important;
+    width: 236px;
 }
 .poster-container img{
     height: 100%;
@@ -220,7 +220,7 @@ td{
 
 /*********************************************** Insert form - End   */
 
-/*********************************************** Films page         */
+/*********************************************** Films.html         */
 .table{
     display: table;
 }
@@ -229,21 +229,23 @@ td{
 }
 .table-cell{
     display: table-cell;
+    padding: 20px 5px;
 }
 .film-card-container{
-    display: block;
+    display: grid;
     background-color: white;
     padding: 15px;
 }
 .film-card{
-    /*display: flex;
-    margin: auto;
-    width: 50%;*/
+   
 }
 .film-card .title, .film-card .year {
-    background-color: black;
-    color: white;
+    background-color: beige;
+    color: black;
     border-style: none;
+}
+.film-card .title {
+    padding-left: 20px;
 }
 .film-card .year, .film-card .avg-rating {
     text-align: center;
@@ -253,10 +255,115 @@ td{
     color: black;
     margin-left: 5px;
 }
+.table-cell.ratings-count {
+    display: none !important;
+}
+/*********************************************** Genres        */
+.genre-grid-container{
+    display: flex;
+    justify-content: center;
+    height: fit-content;
+}
+.genre-box-grid{
+    display: grid;
+    grid-template-columns: 289px;
+    grid-gap: 10px;
+    font-family: "Bevan", sans-serif;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+.genre-box{
+    display: flex;
+    height: 60px;
+    justify-content: center;
+    align-items: center;
+    background-size: 100% auto;
+}
+#Animation{
+    color: white;
+    -webkit-text-stroke: 1px #000;
+    background-image:url("../images/animation-genre.jpg");
+}
+#Action{
+    background-image:url("../images/action-genre.jpg");
+    color: white;
+    -webkit-text-stroke: 1px #000;
+    border: 1px solid;
+}
+#Sci-fi{
+    background-image:url("../images/sci-fi-genre.jpg");
+    background-color: yellow;
+    -webkit-text-stroke: 1px #fafafa;
+}
+#Comedy{
+    background-color: red;
+    background-image:url("../images/comedy-genre.jpg");
+    color: #fafafa;
+    -webkit-text-stroke: 1px black;
+}
+#Crime{
+    background-color: grey;
+    background-image:url("../images/crime-genre.jpg");
+    color: #fafafa;
+    -webkit-text-stroke: 1px black;
+}
+#Thriller{
+    background-image:url("../images/thriller-genre.jpg");
+    color: #fafafa;
+    -webkit-text-stroke: 1px black;
+}
+#Romance{
+    background-image:url("../images/romance-genre.jpg");
+    -webkit-text-stroke: 1px #fafafa;
+}
+#Horror{
+    background-image: url("../images/horror-genre.jpg");
+    color: #fafafa;
+    -webkit-text-stroke: 1px black;
+}
+#Fantasy{
+    background-image:url("../images/fantasy-genre.jpg");
+    color: #fafafa;
+    -webkit-text-stroke: 1px black;
+}
+/*@media screen and (min-width: 450px){
+    .genre-box-grid{
+        font-size: 20px;
+        grid-template-columns: 150px 150px;
+    }
+   .genre-box{ 
+        height: 60px;
+   }
+}*/
+@media screen and (min-width: 700px){
+    .genre-box-grid{
+        font-size: 20px;
+        grid-template-columns: 250px 250px;
+    }
+   .genre-box{ 
+        height: 100px;
+   }
+}
+@media screen and (min-width: 900px){
+    .genre-box-grid{
+        grid-template-columns: 250px 250px 250px;
+    }
+}
+@media screen and (min-width: 1200px){
+    .genre-box-grid{
+        font-size: 24px;
+        grid-template-columns: 376px 376px 376px;
+    }
+   .genre-box{ 
+        height: 150px;
+   }
+}
+/*********************************************** Genres  - End       */
 
-/*********************************************** Films page  - End       */
+/*********************************************** Films.html  - End       */
 
-/*********************************************** Film Review         */
+/*********************************************** Reviews.html        */
+/*********************************************** Film info        */
 
 .review-poster-container{
     display: inline-flex;
@@ -265,7 +372,7 @@ td{
     width: 100%;
 }
 .review-poster-container .poster-container {
-    width: auto;
+    width: 236px;
 }
 .imdb-link{
     height: 40px;
@@ -287,6 +394,21 @@ td{
 #imdb-logo {
     height: 40px;
 }
+@media screen and (min-width:700px){
+    .review-poster-container .poster-container {
+        width: 270px;
+        height: 400px;
+    }
+}
+@media screen and (min-width: 1000px){
+    .review-poster-container .poster-container {
+        width: 308px;
+        height: 454px;
+    }
+}
+/*********************************************** Film info - End      */
+/*********************************************** Film Reviews         */
+
 .user-review-container.row{
     height: 100%;
     margin-bottom: 0px;
@@ -311,3 +433,4 @@ span.username {
 }
 
 /*********************************************** Film Review - End       */
+/*********************************************** Reviews.html - End      */
