@@ -3,6 +3,7 @@ from flask import Flask, flash, render_template, redirect, request, session, url
 import requests
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 
 from os import path
 if path.exists("env.py"):
@@ -26,7 +27,7 @@ def insert_user():
     login_collection = mongo.db.login
     login_collection.delete_many({})
     usernames=login_collection.find({},{"username":1})
-    session['username']=request.form.get('username')
+    session['username']=request.form.get('username') # change move till after line 35 (session is dangerous)
     password=request.form.get('password')
     if login_collection.find_one({'username':session['username']}):
         flash("Username already exists", 'error')
@@ -54,6 +55,9 @@ def insert_rating(username):
     r=requests.get('https://www.omdbapi.com/?i='+f.get('imdbID')+'&apikey='+app.config['API_KEY'] )
     film_json=r.json()
     poster=film_json['Poster']
+    genre=film_json['Genre']
+    genre=genre.split(', ')
+    print('Genre is '+str(genre))
     print('poster is '+poster)
     film_collection=mongo.db.films
     if film_collection.find_one({'imdbID':f.get('imdbID'), 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
@@ -74,7 +78,7 @@ def insert_rating(username):
         """ film not currently listed in db """
         film_collection.insert_one({
             'title': format_title(form['film_title']),'imdbID':form['imdbID'],'year':f.get('Year'),'director':f.get('Director'), 
-            'cast':f.get('Actors'), 'runtime':f.get('Runtime'), 'poster': poster,'ratings':[{'username':session['username'],
+            'cast':f.get('Actors'), 'runtime':f.get('Runtime'), 'genre': genre, 'poster': poster,'ratings':[{'username':session['username'],
             'rating':int(f.get('rating')), 'review':form['review'] }]
             }) 
         print("Rating + Film inserted. (option 3)")
@@ -82,8 +86,32 @@ def insert_rating(username):
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
     return redirect(url_for('userprofile',username=username, films=user_films))
 
-@app.route('/show_films')
+
+@app.route('/show_films/', methods=['POST','GET'])
 def show_films():
+    overall_rankings=film_rankings({"$match":{}})
+    
+    return render_template('films.html', overall_rankings=overall_rankings  )
+
+@app.route('/show_genre_films', methods=['GET'])
+def show_genre_films():
+    genre=request.args.get('genre', '' ,type=str)
+    print('genre is '+genre)
+    genre_rankings=film_rankings( {'$match': {'genre':genre }} )  
+    genre_dict=dumps(genre_rankings)
+    print(genre_dict)
+    
+    return jsonify(result=genre_dict)
+    
+
+@app.route('/show_director_films/<director>')
+def show_director_films(director):
+    director_rankings=film_rankings({'director': director}) 
+    
+    return render_template('films.html',  director_rankings= director_rankings )
+
+
+def film_rankings(query):
     film_collection=mongo.db.films
     film_rankings=film_collection.aggregate([
         {'$addFields': {
@@ -91,6 +119,8 @@ def show_films():
             }
         },
         {"$unwind" : "$ratings"},
+        {"$unwind" : "$genre"},
+        query,
         {"$group": {
             'imdbID': {'$first': '$imdbID' },
             'title' : { '$first': '$title' },
@@ -102,8 +132,9 @@ def show_films():
             }},
         { '$sort' : { 'averageRating' : -1, 'ratingsCount': -1}},
         ])
+    return film_rankings
 
-    return render_template('films.html', film_rankings=film_rankings)
+
 
 def format_title(title):
     """ Formats film titles so that the capitalization of each word is consistent with imdb formatting rules"""

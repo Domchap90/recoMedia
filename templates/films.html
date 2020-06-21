@@ -25,36 +25,55 @@
 <h4>By Genre</h4>
 <div class="genre-grid-container">
     <div class="genre-box-grid">
-        <div id="Animation" class="genre-box" onclick="">Animation</div>
-        <div id="Action" class="genre-box">Action</div>
-        <div id="Sci-fi" class="genre-box">Sci-fi</div>
-        <div id="Comedy" class="genre-box">Comedy</div>
-        <div id="Crime" class="genre-box">Crime</div>
-        <div id="Thriller" class="genre-box">Thriller</div>
-        <div id="Romance" class="genre-box">Romance</div>
-        <div id="Horror" class="genre-box">Horror</div>
-        <div id="Fantasy" class="genre-box">Fantasy</div>
+        
+        <div id="Animation" class="genre-box" onclick="getGenre(this)">Animation</div>
+        <div id="Action" class="genre-box" onclick="getGenre(this)">Action</div>
+        <div id="Sci-fi" class="genre-box" onclick="getGenre(this)">Sci-fi</div>
+        <div id="Comedy" class="genre-box" onclick="getGenre(this)">Comedy</div>
+        <div id="Crime" class="genre-box" onclick="getGenre(this)">Crime</div>
+        <div id="Thriller" class="genre-box" onclick="getGenre(this)">Thriller</div>
+        <div id="Romance" class="genre-box" onclick="getGenre(this)">Romance</div>
+        <div id="Horror" class="genre-box" onclick="getGenre(this)">Horror</div>
+        <div id="Fantasy" class="genre-box" onclick="getGenre(this)">Fantasy</div>
     </div>
 </div>
 
-<h3>Genre Top 10</h3>
+<h3 id="genre-top-10"></h3>
 
 <div class="film-card-container">
-<div class="table">
-{% for film in overall_rankings %}
-    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
-        <div class="table-cell rank">{{loop.index}}</div>
-        <div class="table-cell title">{{film.title}}</div>
-        <div class="table-cell year">{{film.year}}</div>
-        <div class="table-cell avg-rating">{{film.averageRating}}</div>
-        <div class="table-cell ratings-count">({{film.ratingsCount}} ratings)</div>    
-    </a>
+    <div id="genre-table" class="table">
 
-{% endfor %}
+    </div>
 </div>
-</div>
+
 
 <script>
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+function getGenre(genre){
+    let genreToQuery = $(genre).html();
+    
+        $.getJSON($SCRIPT_ROOT + '/show_genre_films', 
+            { genre: genreToQuery },
+            function(data) {
+                let r = data.result;
+                console.log("retrieval success")
+                r=JSON.parse(r);
+                console.log('result is of type '+typeof(r))
+                $("#genre-table").empty();
+                $("#genre-top-10").html(genreToQuery+" Top 10");
+                for(let i=0; i<r.length; i++){
+                    $("#genre-table").append(`
+                    <a class="table-row film-card" href="`+$SCRIPT_ROOT+`/get_reviews/`+r[i].imdbID+`/`+r[i].averageRating+`">
+                        <div class="table-cell rank">`+(i+1)+`</div>
+                        <div class="table-cell title">`+r[i].title+`</div>
+                        <div class="table-cell year">`+r[i].year+`</div>
+                        <div class="table-cell avg-rating">`+r[i].averageRating+`</div>
+                        <div class="table-cell ratings-count">`+r[i].ratingsCount+`</div>    
+                    </a>`)
+                }
+        });
+}
+        
 
 </script>
 {% endblock %}
