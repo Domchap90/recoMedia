@@ -77,7 +77,7 @@ def insert_rating(username):
     else:
         """ film not currently listed in db """
         film_collection.insert_one({
-            'title': format_title(form['film_title']),'imdbID':form['imdbID'],'year':f.get('Year'),'director':f.get('Director'), 
+            'title': format_title(form['film_title']),'imdbID':form['imdbID'],'year':int(f.get('Year')),'director':f.get('Director'), 
             'cast':f.get('Actors'), 'runtime':f.get('Runtime'), 'genre': genre, 'poster': poster,'ratings':[{'username':session['username'],
             'rating':int(f.get('rating')), 'review':form['review'] }]
             }) 
@@ -100,16 +100,28 @@ def show_genre_films():
     genre_rankings=film_rankings( {'$match': {'genre':genre }} )  
     genre_dict=dumps(genre_rankings)
     print(genre_dict)
-    
+
     return jsonify(result=genre_dict)
     
 
-@app.route('/show_director_films/<director>')
-def show_director_films(director):
-    director_rankings=film_rankings({'director': director}) 
-    
-    return render_template('films.html',  director_rankings= director_rankings )
+@app.route('/show_director_films', methods=['GET'])
+def show_director_films():
+    director=request.args.get('director', '' ,type=str)
+    print('director is '+director)
+    director_rankings=film_rankings({'$match': {'director': format_title(director) }}) 
+    director_dict=dumps(director_rankings)
+    print(director_dict)
 
+    return jsonify(result=director_dict)
+
+@app.route('/show_decade_films', methods=['GET'])
+def show_decade_films():
+    decade=request.args.get('decade', 0 ,type=int)
+    decade_rankings=film_rankings( {'$match':{'year': { '$gte': decade, '$lt': decade+10 } } }) 
+    decade_dict=dumps(decade_rankings)
+    print('output to films.html '+decade_dict)
+
+    return jsonify(result=decade_dict)
 
 def film_rankings(query):
     film_collection=mongo.db.films
