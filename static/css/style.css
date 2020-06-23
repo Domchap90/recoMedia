@@ -51,7 +51,16 @@ p, li {
         width: 450px;
     }
 }
+/*********************************************** Login  */
 
+.login-container{
+    width: 50%;
+    height: 100vh;
+    margin: auto;
+    display: flex;
+    align-items: center;
+}
+/*********************************************** Login - End  */
 
 /*********************************************** User profile page  - Film Carousel  */
 
@@ -259,12 +268,12 @@ td{
     display: none !important;
 }
 /*********************************************** Genres        */
-.genre-grid-container{
+.category-grid-container{
     display: flex;
     justify-content: center;
     height: fit-content;
 }
-.genre-box-grid{
+.box-grid{
     display: grid;
     grid-template-columns: 289px;
     grid-gap: 10px;
@@ -272,12 +281,17 @@ td{
     text-transform: uppercase;
     font-size: 12px;
 }
-.genre-box{
+
+.box-item{
     display: flex;
     height: 60px;
     justify-content: center;
     align-items: center;
+    
+}
+.genre-item {
     background-size: 100% auto;
+    font-size: 24px;
 }
 #Animation{
     color: white;
@@ -336,29 +350,79 @@ td{
    }
 }*/
 @media screen and (min-width: 700px){
-    .genre-box-grid{
+    .box-grid{
         font-size: 20px;
         grid-template-columns: 250px 250px;
     }
-   .genre-box{ 
+   .box-item{ 
         height: 100px;
+   }
+   .genre-item {
+       font-size: 28px;
    }
 }
 @media screen and (min-width: 900px){
-    .genre-box-grid{
+    .box-grid{
         grid-template-columns: 250px 250px 250px;
     }
 }
 @media screen and (min-width: 1200px){
-    .genre-box-grid{
+    .box-grid{
         font-size: 24px;
         grid-template-columns: 376px 376px 376px;
     }
-   .genre-box{ 
+    .box-item{  
         height: 150px;
-   }
+    }
+    .genre-item {
+       font-size: 36px;
+    }
 }
 /*********************************************** Genres  - End       */
+
+/*********************************************** Decades       */
+.decade-item{
+    border: 1px solid #000;
+    text-transform: lowercase;
+    font-family: "Oxygen", sans-serif;
+    font-size: 36px;
+}
+[id="1950"] {
+    background-color: red;
+}
+[id="1960"] {
+    background-color: blue;
+}
+[id="1970"] {
+    background-color: green;
+}
+[id="1980"] {
+    background-color: orange;
+}
+[id="1990"] {
+    background-color: cyan;
+}
+[id="2000"] {
+    background-color: purple;
+}
+[id="2010"] {
+    background-color: yellow;
+}
+[id="2020"] {
+    background-color: white;
+}
+@media screen and (min-width: 700px){
+    .decade-item{
+        font-size: 50px;
+    }
+}
+@media screen and (min-width: 1200px){
+    .decade-item{
+        font-size: 64px;
+    }
+}
+
+/*********************************************** Decades - End       */
 
 /*********************************************** Films.html  - End       */
 
