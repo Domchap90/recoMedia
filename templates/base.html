@@ -18,12 +18,13 @@
         <h1>RecoMedia</h1>
       </a>
       <ul class="right hide-on-med-and-down">
-        <li><a href="sass.html">Home</a></li>
-        <li><a href="badges.html">Users</a></li>
-        <li class="active"><a href="collapsible.html">Media</a></li>
+        <li><a href="{{url_for('home')}}">Home</a></li>
+        <li><a href="#">Users</a></li>
+        <li><a href="{{url_for('login_page')}}">Login</a></li>
+        <li class="active"><a href="{{url_for('show_films')}}">Films</a></li>
       </ul>
     </div>
-  </nav>
+</nav>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     {% block content %}
