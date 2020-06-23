@@ -21,27 +21,53 @@ mongo = PyMongo(app)
 def home(): 
     return render_template("index.html") 
 
+@app.route('/login_page')
+def login_page(): 
+    """
+    get username and password from form
+                do any validation
+                get user with that username from the db
+                if user doesn't exist, complain
+                if they do and their password matches the password provided, log them in by setting session['username'] = their username
+                if password doesn't match complain 
+                """
+    
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login(): 
+    login_collection = mongo.db.login
+    username=request.form.get('username')
+    password=request.form.get('password')
+    login_query = login_collection.find_one({'username':username})
+    if login_query:
+        if password==login_query['password']:
+            session['username']=username
+            return redirect(url_for('userprofile') )
+    
+    flash("The password or username you entered is incorrect. Please try again.", 'error')
+    return redirect(url_for('login_page'))
+
+    #if login_query and 
+
 
 @app.route('/insert_user', methods=['POST','GET'])
 def insert_user():
     login_collection = mongo.db.login
-    login_collection.delete_many({})
-    usernames=login_collection.find({},{"username":1})
-    session['username']=request.form.get('username') # change move till after line 35 (session is dangerous)
+    username=request.form.get('username')
     password=request.form.get('password')
-    if login_collection.find_one({'username':session['username']}):
+    if login_collection.find_one({'username':username}):
         flash("Username already exists", 'error')
         return redirect(url_for('home'))
     else:
+        session['username']=username
         login_collection.insert_one({'username':session['username'], 'password': password })
-        film_collection=mongo.db.films
-        user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
-        return render_template('userprofile.html',username=session['username'],films=user_films)
+        return redirect(url_for('userprofile') )
 
     return redirect(url_for('home'))
 
-@app.route('/user_profile/<username>/<films>')
-def userprofile(username,films):
+@app.route('/userprofile')
+def userprofile():
     film_collection=mongo.db.films
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
     return render_template('userprofile.html', username=session['username'], films=user_films)
