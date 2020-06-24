@@ -49,6 +49,16 @@ def login():
     return redirect(url_for('login_page'))
 
     #if login_query and 
+@app.route('/logout')
+def logout(): 
+    session.clear()
+    return redirect(url_for('home'))
+
+def is_logged_in(): 
+    if 'username' in session: 
+        return True
+    else:
+        return False     
 
 
 @app.route('/insert_user', methods=['POST','GET'])
@@ -169,6 +179,7 @@ def film_rankings(query):
                 {"$avg" : "$ratings.rating"}
             }},
         { '$sort' : { 'averageRating' : -1, 'ratingsCount': -1}},
+        { '$limit': 10 }
         ])
     return film_rankings
 

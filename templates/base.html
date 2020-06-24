@@ -18,9 +18,16 @@
         <h1>RecoMedia</h1>
       </a>
       <ul class="right hide-on-med-and-down">
+    {% if 'username' in session %}
+        <li id="login-status">Logged in as {{session['username']}}</li>
+    {% endif %}
         <li><a href="{{url_for('home')}}">Home</a></li>
         <li><a href="#">Users</a></li>
-        <li><a href="{{url_for('login_page')}}">Login</a></li>
+        {% if 'username' in session %}
+        <li><a href="{{ url_for('logout') }}">Log out</a></li>
+        {% else %}
+        <li><a href="{{ url_for('login_page') }}">Login</a></li>
+        {% endif %}
         <li class="active"><a href="{{url_for('show_films')}}">Films</a></li>
       </ul>
     </div>
