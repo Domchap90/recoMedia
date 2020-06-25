@@ -1,4 +1,15 @@
+/****************************************** Global Selectors          */
 
+label {
+    font-size: 1.2rem;
+    color: #4d4d4d;
+}
+form button {
+    font-size: 18px;
+    margin-top: 8px;
+    padding: 4px 12px;
+}
+/****************************************** Global Selectors - End    */
 
 h1 {
     margin: 1.8rem 0;
@@ -22,6 +33,49 @@ p, li {
     font-family: "Oxygen", sans-serif;
     color: #000;
 }
+#login-status{
+    margin-right: 20px;
+    font-weight: bold;
+}
+
+.dropdown-content{
+    display: none;
+    position: absolute;
+    background-color: beige;
+    width: 295px !important;
+    height: 52px;
+    overflow: auto;
+    border: 1px solid #000;
+    z-index: 1;
+}
+.dropdown-content li {
+    height: 50px;
+    line-height: 1.0rem;
+}
+nav form {
+    display: flex;
+}
+#user-search{
+    margin: 0;
+    overflow: hidden !important;
+    width: 250px;
+    padding-left: 15px;
+    font-size: 16px;
+    height: inherit;
+}
+#user-search-btn{
+    height: inherit;
+    margin: 0px;
+    padding: 8px;
+    background-color: beige;
+    color: white;
+}
+
+#user-search-btn img{
+    height: 25px;
+    width: 25px;
+}
+
 @media screen and (min-width: 900px) {
     h1 {
         font-size: 2.8rem;
@@ -43,7 +97,8 @@ p, li {
 }
 
 .error {
-    color: red
+    color: red;
+    font-size: 18px;
 }
 
 @media screen and (min-width: 450px) {
@@ -53,12 +108,26 @@ p, li {
 }
 /*********************************************** Login  */
 
-.login-container{
-    width: 50%;
-    height: 100vh;
-    margin: auto;
-    display: flex;
+.login-container {
+    width: 95%;
+    max-width: 550px;
+    padding: 20px;
+    margin: 15vh auto;
+    display: block;
     align-items: center;
+    background-color: beige;
+    border: 2px solid black;
+}
+
+.login-container h3 {
+    font-size: 2rem;
+    margin: 0px 0px 30px 0px;
+}
+
+@media screen and (min-width:700px){
+    .login-container{
+        margin: 30vh auto;
+    }
 }
 /*********************************************** Login - End  */
 
@@ -228,6 +297,22 @@ td{
 }
 
 /*********************************************** Insert form - End   */
+
+/*********************************************** Userview.html   */
+
+.err-msg-container{
+    margin: 30vh auto;
+    width: 250px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    background-color: beige;
+    font-size: 20px;
+}
+
+/*********************************************** Userview.html - End   */
 
 /*********************************************** Films.html         */
 .table{
