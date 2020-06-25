@@ -54,12 +54,17 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
-def is_logged_in(): 
-    if 'username' in session: 
-        return True
+@app.route('/view_user', methods=['POST'])
+def view_user():
+    username=request.form.get('username')
+    login_collection = mongo.db.login
+    login_query = login_collection.find_one({'username':username})
+    if login_query:
+        user_films=get_user_films(username)
+        return render_template('userview.html', username= username, films=user_films )
     else:
-        return False     
-
+        flash("This user doesn't exist.",'error')
+    return render_template('userview.html')
 
 @app.route('/insert_user', methods=['POST','GET'])
 def insert_user():
@@ -78,10 +83,13 @@ def insert_user():
 
 @app.route('/userprofile')
 def userprofile():
-    film_collection=mongo.db.films
-    user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
+    user_films=get_user_films(session['username'])
     return render_template('userprofile.html', username=session['username'], films=user_films)
 
+def get_user_films(username):
+    film_collection=mongo.db.films
+    user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':username}}})
+    return user_films
 
 @app.route('/insert_rating/<username>', methods=['POST','GET'])
 def insert_rating(username):
