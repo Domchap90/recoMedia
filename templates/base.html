@@ -22,7 +22,16 @@
         <li id="login-status">Logged in as {{session['username']}}</li>
     {% endif %}
         <li><a href="{{url_for('home')}}">Home</a></li>
-        <li><a href="#">Users</a></li>
+        <li><a id="dropdown-users" class='dropdown-trigger' href='' data-target='dropdown'>Users</a>
+            <ul id='dropdown' class='dropdown-content'>
+                <li>
+                    <form action="{{url_for('view_user' ) }}" method="POST">
+                        <input type="text" name="username" placeholder="Look up user" id="user-search" onkeyup="filterUsers(this)">
+                        <button id="user-search-btn" type="submit"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
+                    </form>
+                </li>
+            </ul>
+        </li>
         {% if 'username' in session %}
         <li><a href="{{ url_for('logout') }}">Log out</a></li>
         {% else %}
@@ -34,8 +43,22 @@
 </nav>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     {% block content %}
     {% endblock %}
+    <script>
     
+     $(document).ready(function(){
+        $(".dropdown-trigger").dropdown({
+            coverTrigger: false,
+            closeOnClick: false
+        });
+     });
+     
+     function filterUsers(userSearch){
+        userEntry=$(userSearch).val();
+        console.log(userEntry)
+     }
+    </script>
 </body>
 </html>

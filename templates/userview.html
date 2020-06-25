@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	<ul class=flashes>
+        <div class='err-msg-container'>
+            {% for category, message in messages %}
+            <div class="{{category}}">{{ message }}</div>
+            {% endfor %}
+        </div>
+	</ul>
+{% endif %}
+{% endwith %}
+
+{% if username %}
+    <h2>{{username}}'s Films</h2>
+
+    {% set film_count = films.count() %}
+    {% if film_count > 0 %}
+
+    <p>You have rated {{ film_count }} films</p>
+
+    <div class="carousel-container">
+        <div class="prev hide-on-med-and-down"><</div>
+        <div class="carousel carousel-slider center" data-indicators="false">
+        {% for film in films %}
+            <div class="carousel-item center">
+                <div class="arrow-pic-container">
+                    <div class="prev hide-on-large-and-up"><</div>
+                    <div class="poster-container">
+                        <img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
+                    {% for rate in film.ratings %}
+                    {% if rate.username==username %} 
+                        <div class="rating-overlay">
+                            <div class="rating-container">
+                                {{rate.rating}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="next hide-on-large-and-up">></div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <tr>
+                            <td class="left-field ">Year:</td><td class="right-field">{{film.year}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left-field ">Cast:</td><td class="right-field">{{film.cast}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left-field">Director:</td><td class="right-field">{{film.director}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left-field">Runtime:</td><td class="right-field">{{film.runtime}}</td>    
+                        </tr>
+                        <tr>
+                            <td class="left-field">Review:</td><td class="right-field">{{rate.review}}</td>    
+                        </tr>
+                    </table>
+                </div>
+                {% endif %}
+                {% endfor %}
+            
+            </div>
+        
+        {% endfor %}
+        </div>
+        <div class="next hide-on-med-and-down">></div>
+    </div>
+    {% else %}
+    <p>You don't currently have any film reviews.</p>
+    {% endif %}
+    
+{% endif %}
+
+
+<script language='javascript' type='text/javascript'>
+   // var film_options;
+    var elems;
+    var instances;
+    var currYear = (new Date()).getFullYear();
+
+    $(document).ready(function(){
+        //$('select').formSelect();
+        elems = document.querySelectorAll('select');
+        $('.carousel.carousel-slider').carousel({
+            fullWidth: true,
+        });
+        $('.prev').click(function(){
+            $('.carousel').carousel('prev');
+        });
+        $('.next').click(function(){
+            $('.carousel').carousel('next');
+        });
+    });
+
+    function getSuggestions(filmname){
+        $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
+            console.log('getSuggestions entered.')
+            /**** clear previous suggestions ****/
+            var title_object = {};
+            /**** autocomplete film suggestions ****/
+            for (film of rawdata.Search){
+                title_object[film.Title] = null;
+            }
+
+            $('input.autocomplete').autocomplete({
+                data: title_object,
+                limit: 5
+            });  
+        }); 
+    }  
+           
+    /*function createElem(parentNode, film_id) {
+        $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
+            console.log(parentNode)
+            $("#"+parentNode).empty();
+            let option=document.createElement("OPTION");
+            let att = document.createAttribute("value");       // Create a "class" attribute
+            att.value = rawdata[parentNode];                           // Set the value of the class attribute
+            option.setAttributeNode(att);                  
+            //option.attr({value: rawdata[parentNode], disabled: "disabled", selected: "selected");
+            console.log(parentNode+' is '+option.value)
+            option.innerHTML=rawdata[parentNode];
+            document.getElementById(parentNode).appendChild(option);
+        });
+    }*/
+</script>
+
+{% endblock %}
