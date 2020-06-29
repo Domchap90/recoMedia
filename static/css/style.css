@@ -311,10 +311,29 @@ td{
     background-color: beige;
     font-size: 20px;
 }
+.pagination{
+    display: flex;
+    justify-content: center;
+}
+.pagination li.active a {
+    color: #fff;
+    background-color: #4d4d4d;
+}
+.top-picks.film-card-container {
+    display: none;
+}
 
+#page-1.film-card-container  {
+    display: grid;
+}
 /*********************************************** Userview.html - End   */
 
 /*********************************************** Films.html         */
+.film-card-container{
+    display: grid;
+    background-color: white;
+    padding: 15px 0px;
+}
 .table{
     display: table;
 }
@@ -323,34 +342,73 @@ td{
 }
 .table-cell{
     display: table-cell;
-    padding: 20px 5px;
-}
-.film-card-container{
-    display: grid;
-    background-color: white;
-    padding: 15px;
-}
-.film-card{
-   
-}
-.film-card .title, .film-card .year {
+    padding: 16px 4px;
+    vertical-align: middle;
     background-color: beige;
     color: black;
-    border-style: none;
 }
-.film-card .title {
+.film-card .rank{
+    width: 10px;
+    padding: 0 12px;
+    background-color: #4d4d4d;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}
+.film-card .title{
     padding-left: 20px;
 }
-.film-card .year, .film-card .avg-rating {
+.film-card .year{
+    width: 52px;
     text-align: center;
 }
-.film-card .avg-rating{
-    background-color: beige;
-    color: black;
+.film-card .rating, .film-card .avg-rating{
+    width: 42px;
     margin-left: 5px;
+    text-align: center;
+    padding: 0 12px;
+    font-weight: bolder;
 }
+
 .table-cell.ratings-count {
     display: none !important;
+}
+
+@media screen and (min-width:700px){
+    .film-card-container{
+        padding: 30px;
+    }
+    .table{
+        width: 95%;
+        max-width: 1000px;
+        justify-self: center;
+    }
+    .table-cell{
+        display: table-cell;
+        padding: 16px 4px;
+        vertical-align: middle;
+        background-color: beige;
+        color: black;
+    }
+    .film-card .rank{
+        width: 5%;
+        padding: 0 12px;
+        background-color: #4d4d4d;
+        color: white;
+        font-weight: bold;
+    }
+    .film-card .title{
+    }
+    .film-card .year{
+        width: 12%;
+    }
+    .film-card .rating, .film-card .avg-rating{
+        width: 12%;
+    }
+
+    .table-cell.ratings-count {
+        display: table-cell !important;
+    }
 }
 /*********************************************** Genres        */
 .category-grid-container{

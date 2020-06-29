@@ -13,67 +13,100 @@
 {% endif %}
 {% endwith %}
 
-{% if username %}
-    <h2>{{username}}'s Films</h2>
+{% if films %}
+<h2>{{username}}'s Films</h2>
 
-    {% set film_count = films.count() %}
-    {% if film_count > 0 %}
+{% set film_count = films.count() %}
+{% if film_count > 0 %}
 
-    <p>You have rated {{ film_count }} films</p>
+<p>{{username}} has rated {{ film_count }} films</p>
 
-    <div class="carousel-container">
-        <div class="prev hide-on-med-and-down"><</div>
-        <div class="carousel carousel-slider center" data-indicators="false">
-        {% for film in films %}
-            <div class="carousel-item center">
-                <div class="arrow-pic-container">
-                    <div class="prev hide-on-large-and-up"><</div>
-                    <div class="poster-container">
-                        <img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
+<div class="carousel-container">
+	<div class="prev hide-on-med-and-down">
+		<</div> <div class="carousel carousel-slider center" data-indicators="false">
+			{% for film in films %}
+			<div class="carousel-item center">
+				<div class="arrow-pic-container">
+					<div class="prev hide-on-large-and-up">
+						<</div> <div class="poster-container">
+							<img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
                     {% for rate in film.ratings %}
-                    {% if rate.username==username %} 
-                        <div class="rating-overlay">
-                            <div class="rating-container">
-                                {{rate.rating}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="next hide-on-large-and-up">></div>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <tr>
-                            <td class="left-field ">Year:</td><td class="right-field">{{film.year}}</td>
-                        </tr>
-                        <tr>
-                            <td class="left-field ">Cast:</td><td class="right-field">{{film.cast}}</td>
-                        </tr>
-                        <tr>
-                            <td class="left-field">Director:</td><td class="right-field">{{film.director}}</td>
-                        </tr>
-                        <tr>
-                            <td class="left-field">Runtime:</td><td class="right-field">{{film.runtime}}</td>    
-                        </tr>
-                        <tr>
-                            <td class="left-field">Review:</td><td class="right-field">{{rate.review}}</td>    
-                        </tr>
-                    </table>
-                </div>
-                {% endif %}
-                {% endfor %}
-            
-            </div>
-        
-        {% endfor %}
-        </div>
-        <div class="next hide-on-med-and-down">></div>
-    </div>
-    {% else %}
-    <p>You don't currently have any film reviews.</p>
-    {% endif %}
-    
-{% endif %}
+                    {% if rate.username==username %}
+							<div class="rating-overlay">
+								<div class="rating-container">
+									{{rate.rating}}
+								</div>
+							</div>
+					</div>
+					<div class="next hide-on-large-and-up">></div>
+				</div>
+				<div class="table-container">
+					<table>
+						<tr>
+							<td class="left-field ">Year:</td>
+							<td class="right-field">{{film.year}}</td>
+						</tr>
+						<tr>
+							<td class="left-field ">Cast:</td>
+							<td class="right-field">{{film.cast}}</td>
+						</tr>
+						<tr>
+							<td class="left-field">Director:</td>
+							<td class="right-field">{{film.director}}</td>
+						</tr>
+						<tr>
+							<td class="left-field">Runtime:</td>
+							<td class="right-field">{{film.runtime}}</td>
+						</tr>
+						<tr>
+							<td class="left-field">Review:</td>
+							<td class="right-field">{{rate.review}}</td>
+						</tr>
+					</table>
+                    {% endif %}
+                    {% endfor %}
+				</div>
+			</div>
+			{% endfor %}
+	</div>
+	<div class="next hide-on-med-and-down">></div>
+</div>
 
+<h3>{{username}}'s' Top Picks</h3>
+
+<ul class="pagination">
+    <li class="disabled" id="left-chev" onclick="prevPage()"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+    {% for page in range(top_picks|count) %}
+    {% if page +1==1 %}
+    <li class="active" id="page-btn-{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    {% else %}
+    <li id="page-btn-{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    {% endif %}
+    <a href="#page-{{page+1}}">{{page+1}}</a></li>
+    {% endfor %}
+    <li class="waves-effect" id="right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+</ul>
+
+{% set pages_counted = [] %}
+{% for page in top_picks %}
+<div id="page-{{loop.index}}" class="film-card-container top-picks">
+<div class="table">
+{% for film in page %}
+    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+        <div class="table-cell rank">{{ loop.index + (pages_counted|length*films_per_page) }}</div>
+        <div class="table-cell title">{{film.title}}</div>
+        <div class="table-cell year">{{film.year}}</div>
+        <div class="table-cell rating">{{film.ratings.0.rating}}</div>    
+    </a>
+{% endfor %}
+</div>
+</div>
+{% set __ = pages_counted.append(1) %}
+{% endfor %}            
+{% else %}
+<p>{{username}} doesn't currently have any film reviews.</p>
+{% endif %}
+{% endif %}
 
 <script language='javascript' type='text/javascript'>
    // var film_options;
@@ -93,6 +126,14 @@
         $('.next').click(function(){
             $('.carousel').carousel('next');
         });
+        btnCount=$('.pagination > li').length;
+        console.log('length is '+btnCount)
+        // eliminates chevrons where only one page exists within pagination.
+        // button count is 3 in this case because 2 of the buttons are chevrons NOT page buttons.
+        if (btnCount==3){ 
+          $("#left-chev").hide();
+          $("#right-chev").hide();
+        }
     });
 
     function getSuggestions(filmname){
@@ -111,21 +152,78 @@
             });  
         }); 
     }  
-           
-    /*function createElem(parentNode, film_id) {
-        $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
-            console.log(parentNode)
-            $("#"+parentNode).empty();
-            let option=document.createElement("OPTION");
-            let att = document.createAttribute("value");       // Create a "class" attribute
-            att.value = rawdata[parentNode];                           // Set the value of the class attribute
-            option.setAttributeNode(att);                  
-            //option.attr({value: rawdata[parentNode], disabled: "disabled", selected: "selected");
-            console.log(parentNode+' is '+option.value)
-            option.innerHTML=rawdata[parentNode];
-            document.getElementById(parentNode).appendChild(option);
+
+    function getPage(pageButton){
+        $(".top-picks.film-card-container").hide();
+        let pageLink=$(pageButton).children('a').attr('href');
+        /* The link attribute is the same as the id of its associated page table.*/
+        $(pageLink).css('display', 'grid');
+    }
+
+    function updateChevronState(activeBtnId){
+        let pageBtnCount=$('.pagination > li').length-2;
+        /* Determine chevron states to be disabled or not - applies to prevPage() and nextPage() also  --> refactor / on doc ready */
+        if (activeBtnId=="page-btn-1"){
+            $('#right-chev').removeClass("disabled");
+            $('#left-chev').addClass("disabled");
+        } else if (activeBtnId=="page-btn-"+pageBtnCount){
+            $('#left-chev').removeClass("disabled");
+            $('#right-chev').addClass("disabled");
+        } else {    /* Both chevrons enabled */
+            $('#left-chev').removeClass("disabled");
+            $('#right-chev').removeClass("disabled");
+        }
+    }
+
+    function goToPage(page){
+        getPage(page);
+        $('.pagination > li').removeClass('active');
+        $(page).addClass("active");
+
+        let activeBtnId=$(page).attr("id");
+        updateChevronState(activeBtnId);  
+    }
+
+    function getCurrentBtn(){
+        let currentBtnId;
+        let pageBtns=$('.pagination').children().each(function(){
+            if($(this).hasClass('active')){
+                currentBtnId=$(this).attr('id');
+            }
+            return currentBtnId;
         });
-    }*/
+        return currentBtnId;
+    }
+
+    function prevPage() {
+        /* if chevron btn enabled allow prev function to be carried out */
+        if (!$('#left-chev').hasClass("disabled")){
+            let currentBtnId=getCurrentBtn();
+            let prevBtnId='page-btn-'+(currentBtnId.slice(-1)-1);
+            console.log('prevBtnId is '+prevBtnId)
+            $('#'+currentBtnId).removeClass('active');
+            $('#'+prevBtnId).addClass('active');
+            /* Change page table showing */
+            getPage('#'+prevBtnId);
+            updateChevronState(prevBtnId); 
+        }
+    }
+
+    function nextPage() {
+        /* if chevron btn enabled allow next function to be carried out */
+        if (!$('#right-chev').hasClass("disabled")){
+            let currentBtnId=getCurrentBtn();
+            console.log('nextPage function, currentBtnId is: '+currentBtnId)
+            let nextBtnId='page-btn-'+(parseInt(currentBtnId.slice(-1))+1);
+            console.log('nextBtnId is '+nextBtnId)
+            $('#'+currentBtnId).removeClass('active');
+            $('#'+nextBtnId).addClass('active');
+            /* Change page table showing */
+            getPage('#'+nextBtnId);
+            updateChevronState(nextBtnId); 
+        }
+    }
+   
 </script>
 
 {% endblock %}

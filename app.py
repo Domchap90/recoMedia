@@ -54,14 +54,29 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
-@app.route('/view_user', methods=['POST'])
+@app.route('/view_user', methods=['POST','GET'])
 def view_user():
     username=request.form.get('username')
     login_collection = mongo.db.login
     login_query = login_collection.find_one({'username':username})
     if login_query:
         user_films=get_user_films(username)
-        return render_template('userview.html', username= username, films=user_films )
+        # initiate list to collect clustered queries (clustered in pages)
+        cursor_list=[]
+        # page size is set for pagination 
+        films_per_page=5
+        # get page size (full pages)
+        page_size=int(get_user_films(username).count()/films_per_page)  
+        # account for partially filled pages
+        if get_user_films(username).count()%films_per_page>0:
+            page_size=page_size+1
+        print('page_size is '+str(page_size))
+        for pages_counted in range(page_size):
+            print(pages_counted)
+            cursor_list.append(get_user_films(username).sort([('ratings.rating',-1)]).limit(films_per_page).skip(pages_counted*films_per_page))
+        
+        return render_template('userview.html', username= username, films=user_films, top_picks=cursor_list, films_per_page=films_per_page ) 
+
     else:
         flash("This user doesn't exist.",'error')
     return render_template('userview.html')
@@ -167,6 +182,29 @@ def show_decade_films():
 
     return jsonify(result=decade_dict)
 
+def user_film_rankings(query, skipBy):
+    film_collection=mongo.db.films
+    film_rankings=film_collection.aggregate([
+        {'$addFields': {
+            'rating': { '$arrayElemAt':['$ratings.rating',0]}
+            }
+        },
+        {"$unwind" : "$genre"},
+        #{"$unwind":'$ratings'},
+        query,
+        {"$group": {
+            'imdbID': {'$first': '$imdbID' },
+            'title' : { '$first': '$title' },
+            'year': { '$first': '$year' },
+            'rating': {'$first': '$rating'},
+            "_id":"$imdbID"
+            }},
+        { '$sort' : { 'rating' : -1} },
+        { '$limit': 2 }, # page size is limit
+        {'$skip': skipBy}
+        ])
+    return film_rankings
+
 def film_rankings(query):
     film_collection=mongo.db.films
     film_rankings=film_collection.aggregate([
@@ -190,7 +228,6 @@ def film_rankings(query):
         { '$limit': 10 }
         ])
     return film_rankings
-
 
 
 def format_title(title):
