@@ -16,7 +16,7 @@
 {% if films %}
 <h2>{{username}}'s Films</h2>
 
-{% set film_count = films.count() %}
+{% set film_count = films|length %}
 {% if film_count > 0 %}
 
 <p>{{username}} has rated {{ film_count }} films</p>
@@ -74,22 +74,22 @@
 
 <h3>{{username}}'s' Top Picks</h3>
 
-<ul class="pagination">
-    <li class="disabled" id="left-chev" onclick="prevPage()"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+<ul class="pagination top-picks">
+    <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
     {% for page in range(top_picks|count) %}
     {% if page +1==1 %}
-    <li class="active" id="page-btn-{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    <li class="active" id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
     {% else %}
-    <li id="page-btn-{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    <li id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
     {% endif %}
-    <a href="#page-{{page+1}}">{{page+1}}</a></li>
+    <a href="#tp-page-{{page+1}}">{{page+1}}</a></li>
     {% endfor %}
-    <li class="waves-effect" id="right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+    <li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
 </ul>
 
 {% set pages_counted = [] %}
 {% for page in top_picks %}
-<div id="page-{{loop.index}}" class="film-card-container top-picks">
+<div id="tp-page-{{loop.index}}" class="film-card-container top-picks">
 <div class="table">
 {% for film in page %}
     <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
@@ -102,7 +102,40 @@
 </div>
 </div>
 {% set __ = pages_counted.append(1) %}
-{% endfor %}            
+{% endfor %}
+
+<h3>{{username}}'s' New Release Recommendations</h3>  
+
+<ul class="pagination new-releases">
+    <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+    {% for page in range(new_releases|count) %}
+    {% if page +1==1 %}
+    <li class="active" id="nr-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    {% else %}
+    <li id="nr-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    {% endif %}
+    <a href="#nr-page-{{page+1}}.new-releases">{{page+1}}</a></li>
+    {% endfor %}
+    <li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+</ul>
+
+{% set nr_pages_counted = [] %}
+{% for page in new_releases %}
+<div id="nr-page-{{loop.index}}" class="film-card-container new-releases">
+<div class="table">
+{% for film in page %}
+    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+        <div class="table-cell rank">{{ loop.index + (nr_pages_counted|length*films_per_page) }}</div>
+        <div class="table-cell title">{{film.title}}</div>
+        <div class="table-cell year">{{film.year}}</div>
+        <div class="table-cell rating">{{film.ratings.0.rating}}</div>    
+    </a>
+{% endfor %}
+</div>
+</div>
+{% set __ = nr_pages_counted.append(1) %}
+{% endfor %}    
+
 {% else %}
 <p>{{username}} doesn't currently have any film reviews.</p>
 {% endif %}
@@ -154,39 +187,64 @@
     }  
 
     function getPage(pageButton){
-        $(".top-picks.film-card-container").hide();
+        if ($(pageButton).parent().hasClass('top-picks')){
+            $(".top-picks.film-card-container").hide();
+        }
+        if ($(pageButton).parent().hasClass('new-releases')){
+            $(".new-releases.film-card-container").hide();
+        }
         let pageLink=$(pageButton).children('a').attr('href');
         /* The link attribute is the same as the id of its associated page table.*/
         $(pageLink).css('display', 'grid');
     }
 
     function updateChevronState(activeBtnId){
-        let pageBtnCount=$('.pagination > li').length-2;
+        let tpPageBtnCount=$('.top-picks > li').length-2;
+        let nrPageBtnCount=$('.new-releases > li').length-2;
+
         /* Determine chevron states to be disabled or not - applies to prevPage() and nextPage() also  --> refactor / on doc ready */
-        if (activeBtnId=="page-btn-1"){
-            $('#right-chev').removeClass("disabled");
-            $('#left-chev').addClass("disabled");
-        } else if (activeBtnId=="page-btn-"+pageBtnCount){
-            $('#left-chev').removeClass("disabled");
-            $('#right-chev').addClass("disabled");
-        } else {    /* Both chevrons enabled */
-            $('#left-chev').removeClass("disabled");
-            $('#right-chev').removeClass("disabled");
+        /* Top-pick Chevrons */
+        if (activeBtnId=="tp-page-btn1"){
+            $('.top-picks .right-chev').removeClass("disabled");
+            $('.top-picks .left-chev').addClass("disabled");
+        } else if (activeBtnId=="tp-page-btn"+tpPageBtnCount){
+            $('.top-picks .left-chev').removeClass("disabled");
+            $('.top-picks .right-chev').addClass("disabled");
+        } else if (activeBtnId.slice(0,11)=='tp-page-btn'){    /* Both chevrons enabled */
+            $('.top-picks .left-chev').removeClass("disabled");
+            $('.top-picks .right-chev').removeClass("disabled");
+        }
+        /* New-releases Chevrons */
+        if (activeBtnId=="nr-page-btn1"){
+            $('.new-releases .right-chev').removeClass("disabled");
+            $('.new-releases .left-chev').addClass("disabled");
+        } else if (activeBtnId=="nr-page-btn"+nrPageBtnCount){
+            $('.new-releases .left-chev').removeClass("disabled");
+            $('.new-releases .right-chev').addClass("disabled");
+        } else if(activeBtnId.slice(0,11)=='nr-page-btn'){    /* Both chevrons enabled */
+            $('.new-releases .left-chev').removeClass("disabled");
+            $('.new-releases .right-chev').removeClass("disabled");
         }
     }
 
     function goToPage(page){
         getPage(page);
-        $('.pagination > li').removeClass('active');
+        if ($(page).parent().hasClass('top-picks')){
+            $('.top-picks > li').removeClass('active');
+        }
+        if ($(page).parent().hasClass('new-releases')){
+            $('.new-releases > li').removeClass('active');
+        }
         $(page).addClass("active");
-
         let activeBtnId=$(page).attr("id");
         updateChevronState(activeBtnId);  
     }
 
-    function getCurrentBtn(){
+    function getCurrentBtn(paginationClass){
+        // Retrieves the page button with active status (currently displaying that number page of results) 
+        // paginationClass distinguishes the sets of buttons being dealth with.
         let currentBtnId;
-        let pageBtns=$('.pagination').children().each(function(){
+        let pageBtns=$('.pagination'+paginationClass).children().each(function(){
             if($(this).hasClass('active')){
                 currentBtnId=$(this).attr('id');
             }
@@ -195,12 +253,22 @@
         return currentBtnId;
     }
 
-    function prevPage() {
+    function prevPage(chevron) {
+        let isTopPicks=$(chevron).parent().hasClass('top-picks');
+        let isNewRelease=$(chevron).parent().hasClass('new-releases');
         /* if chevron btn enabled allow prev function to be carried out */
-        if (!$('#left-chev').hasClass("disabled")){
-            let currentBtnId=getCurrentBtn();
-            let prevBtnId='page-btn-'+(currentBtnId.slice(-1)-1);
-            console.log('prevBtnId is '+prevBtnId)
+        if (!$(chevron).hasClass("disabled") ){
+            let currentBtnId, prevBtnId;
+
+            if (isTopPicks){
+                currentBtnId=getCurrentBtn('.top-picks');
+                // Extracts number from page button Id and decrements by 1 to establish previous page.
+                prevBtnId='tp-page-btn'+(String(currentBtnId).match(/\d+/)-1 ); 
+            }
+            if (isNewRelease){
+                currentBtnId=getCurrentBtn('.new-releases');
+                prevBtnId='nr-page-btn'+(String(currentBtnId).match(/\d+/)-1 );
+            }
             $('#'+currentBtnId).removeClass('active');
             $('#'+prevBtnId).addClass('active');
             /* Change page table showing */
@@ -209,12 +277,21 @@
         }
     }
 
-    function nextPage() {
+    function nextPage(chevron) {
+        let isTopPicks=$(chevron).parent().hasClass('top-picks');
+        let isNewRelease=$(chevron).parent().hasClass('new-releases');
         /* if chevron btn enabled allow next function to be carried out */
-        if (!$('#right-chev').hasClass("disabled")){
-            let currentBtnId=getCurrentBtn();
-            console.log('nextPage function, currentBtnId is: '+currentBtnId)
-            let nextBtnId='page-btn-'+(parseInt(currentBtnId.slice(-1))+1);
+        if (!$(chevron).hasClass("disabled")){
+            let currentBtnId, nextBtnId;
+            if (isTopPicks){
+                currentBtnId=getCurrentBtn('.top-picks');
+                // Extracts number from page button Id and decrements by 1 to establish previous page.
+                nextBtnId='tp-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/)) ); 
+            }
+            if (isNewRelease){
+                currentBtnId=getCurrentBtn('.new-releases');
+                nextBtnId='nr-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/) ) );
+            }
             console.log('nextBtnId is '+nextBtnId)
             $('#'+currentBtnId).removeClass('active');
             $('#'+nextBtnId).addClass('active');

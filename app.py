@@ -1,9 +1,11 @@
 import os
 from flask import Flask, flash, render_template, redirect, request, session, url_for, jsonify
 import requests
+import math
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
-from bson.json_util import dumps
+from bson.json_util import dumps, loads
+
 
 from os import path
 if path.exists("env.py"):
@@ -60,26 +62,32 @@ def view_user():
     login_collection = mongo.db.login
     login_query = login_collection.find_one({'username':username})
     if login_query:
-        user_films=get_user_films(username)
-        # initiate list to collect clustered queries (clustered in pages)
-        cursor_list=[]
-        # page size is set for pagination 
-        films_per_page=5
-        # get page size (full pages)
-        page_size=int(get_user_films(username).count()/films_per_page)  
-        # account for partially filled pages
-        if get_user_films(username).count()%films_per_page>0:
-            page_size=page_size+1
-        print('page_size is '+str(page_size))
-        for pages_counted in range(page_size):
-            print(pages_counted)
-            cursor_list.append(get_user_films(username).sort([('ratings.rating',-1)]).limit(films_per_page).skip(pages_counted*films_per_page))
+        films_per_page=2        
+        top_picks=paginate_query(get_user_films(username), films_per_page)
+        new_releases=paginate_query(get_new_releases(username), films_per_page)
         
-        return render_template('userview.html', username= username, films=user_films, top_picks=cursor_list, films_per_page=films_per_page ) 
+        return render_template('userview.html', username= username, films=get_user_films(username),
+            films_per_page=films_per_page, top_picks= top_picks, new_releases=new_releases )
 
     else:
         flash("This user doesn't exist.",'error')
     return render_template('userview.html')
+
+def paginate_query(query, items_per_page):
+    #for film in query:
+        
+    paginated_list=[]
+    # get page size (full pages)
+    page_size=math.ceil(len(query)/items_per_page)  
+    print('query has page_size '+str(page_size))
+
+    for pages_counted in range(page_size):
+        print(pages_counted)
+        foo = query[(pages_counted*items_per_page):(pages_counted*items_per_page)+items_per_page]
+        print(foo)
+        paginated_list.append(foo)
+    
+    return paginated_list
 
 @app.route('/insert_user', methods=['POST','GET'])
 def insert_user():
@@ -104,7 +112,14 @@ def userprofile():
 def get_user_films(username):
     film_collection=mongo.db.films
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':username}}})
+    user_films=list(user_films.sort('ratings.rating',-1))
     return user_films
+
+def get_new_releases(username):
+    film_collection=mongo.db.films
+    new_releases = film_collection.find({'$and': [{'year': 2020}, {'ratings':{'$elemMatch': { 'username': username}}}] })
+    new_releases = list( new_releases.sort('ratings.rating',-1) )
+    return new_releases
 
 @app.route('/insert_rating/<username>', methods=['POST','GET'])
 def insert_rating(username):
@@ -181,29 +196,7 @@ def show_decade_films():
     print('output to films.html '+decade_dict)
 
     return jsonify(result=decade_dict)
-
-def user_film_rankings(query, skipBy):
-    film_collection=mongo.db.films
-    film_rankings=film_collection.aggregate([
-        {'$addFields': {
-            'rating': { '$arrayElemAt':['$ratings.rating',0]}
-            }
-        },
-        {"$unwind" : "$genre"},
-        #{"$unwind":'$ratings'},
-        query,
-        {"$group": {
-            'imdbID': {'$first': '$imdbID' },
-            'title' : { '$first': '$title' },
-            'year': { '$first': '$year' },
-            'rating': {'$first': '$rating'},
-            "_id":"$imdbID"
-            }},
-        { '$sort' : { 'rating' : -1} },
-        { '$limit': 2 }, # page size is limit
-        {'$skip': skipBy}
-        ])
-    return film_rankings
+     
 
 def film_rankings(query):
     film_collection=mongo.db.films
