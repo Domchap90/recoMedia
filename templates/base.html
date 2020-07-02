@@ -24,12 +24,13 @@
         <li><a href="{{url_for('home')}}">Home</a></li>
         <li><a id="dropdown-users" class='dropdown-trigger' href='' data-target='dropdown'>Users</a>
             <ul id='dropdown' class='dropdown-content'>
-                <li>
+                <li id="search-bar-container">
                     <form action="{{url_for('view_user' ) }}" method="POST">
                         <input type="text" name="username" placeholder="Look up user" id="user-search" onkeyup="filterUsers(this)">
                         <button id="user-search-btn" type="submit"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
                     </form>
                 </li>
+                <li id="suggestion-description">User profiles matching your search</li>
             </ul>
         </li>
         {% if 'username' in session %}
@@ -47,7 +48,7 @@
     {% block content %}
     {% endblock %}
     <script>
-    
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
      $(document).ready(function(){
         $(".dropdown-trigger").dropdown({
             coverTrigger: false,
@@ -58,6 +59,27 @@
      function filterUsers(userSearch){
         userEntry=$(userSearch).val();
         console.log(userEntry)
+        $.getJSON($SCRIPT_ROOT + '/username_search_options', 
+            { searchValue: userEntry },
+            function(data) {
+                $("#suggestion-description").html("User profiles matching your search");
+                let r = data.result;
+                r=JSON.parse(r);
+                if(r.length==0){
+                    $("#suggestion-description").html("No users available from this search")
+                }
+                $(".suggestions").remove();
+                for(i of r){
+                    $("#dropdown").append(`<li class="suggestions" onclick="getSuggestion(this)">`+i['username']+`</li>`);
+                }
+            }); 
+     }
+
+     function getSuggestion(suggestion){
+         // Upon clicking suggestion (dynamically created in filterUsers function) suggestion appears 
+         // in input field.
+         s=$(suggestion).text();
+         $('#user-search').val(s);
      }
     </script>
 </body>
