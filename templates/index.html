@@ -24,13 +24,14 @@
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input id="password" type="password" name="password" class="validate" /required>
-                <label for="password" class="active">Password</label>
+                <input id="password" type="password" name="password" minlength="9" class="validate" oninput="checkPasswordsMatch(this)" /required>
+                <label for="password" class="active" data-error="Please enter your first name.">Password</label>
             </div>
+            <span>Please note your password must be more than 8 characters long.</span>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input id="c_password" type="password" name="c_password" class="validate" oninput="check(this)" /required>
+                <input id="c_password" type="password" name="c_password" class="validate" oninput="checkPasswordsMatch(this)" /required>
                 <label for="c_password" class="active">Confirm Password</label>
             </div>
         </div>
@@ -43,9 +44,9 @@
 </div>
 <p>{{usernames}}</p>
 <script language='javascript' type='text/javascript'>
-    function check(input) {
+    function checkPasswordsMatch(input) {
         console.log('checker function accessed.')
-        if ( input.value != $('#password').val() ) {
+        if ( $('#c_password').val() != $('#password').val() && $('#c_password').val().length>0 ) {
             console.log('passwords not equal accessed.\n'+$('#password').val()+' , '+input.value)
             $("div #err-msg").html("Password Must be Matching.");
             $("#err-msg").css("color","red");
