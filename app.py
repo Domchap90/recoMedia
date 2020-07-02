@@ -2,7 +2,9 @@ import os
 from flask import Flask, flash, render_template, redirect, request, session, url_for, jsonify
 import requests
 import math
+import re
 from flask_pymongo import PyMongo
+from pymongo import TEXT
 from bson.objectid import ObjectId
 from bson.json_util import dumps, loads
 
@@ -23,17 +25,24 @@ mongo = PyMongo(app)
 def home(): 
     return render_template("index.html") 
 
+@app.route('/username_search_options', methods=['GET'])
+def username_search_options():
+    login_collection = mongo.db.login
+    login_collection.create_index( [ ('username', TEXT) ] )
+    search_username=request.args.get('searchValue', '' ,type=str)
+    print('searched user is '+search_username)
+    regex=re.compile(search_username, re.IGNORECASE)
+    search_suggestions=list(login_collection.find( { 'username' : regex } ).limit(5) ) # limit to 5 suggestions
+    for item in search_suggestions:
+        print('item is '+str(item['username']))
+    search_suggestions_dict=dumps(search_suggestions)
+    print(search_suggestions)
+    print('\nafter dumps '+search_suggestions_dict)
+
+    return jsonify(result=search_suggestions_dict)
+
 @app.route('/login_page')
 def login_page(): 
-    """
-    get username and password from form
-                do any validation
-                get user with that username from the db
-                if user doesn't exist, complain
-                if they do and their password matches the password provided, log them in by setting session['username'] = their username
-                if password doesn't match complain 
-                """
-    
     return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
@@ -62,7 +71,7 @@ def view_user():
     login_collection = mongo.db.login
     login_query = login_collection.find_one({'username':username})
     if login_query:
-        films_per_page=2        
+        films_per_page=10        
         top_picks=paginate_query(get_user_films(username), films_per_page)
         new_releases=paginate_query(get_new_releases(username), films_per_page)
         
@@ -74,18 +83,12 @@ def view_user():
     return render_template('userview.html')
 
 def paginate_query(query, items_per_page):
-    #for film in query:
-        
     paginated_list=[]
-    # get page size (full pages)
+    # get page size including any partially filled pages (using ceiling function)
     page_size=math.ceil(len(query)/items_per_page)  
-    print('query has page_size '+str(page_size))
-
     for pages_counted in range(page_size):
-        print(pages_counted)
-        foo = query[(pages_counted*items_per_page):(pages_counted*items_per_page)+items_per_page]
-        print(foo)
-        paginated_list.append(foo)
+        query_page = query[(pages_counted*items_per_page):(pages_counted*items_per_page)+items_per_page]
+        paginated_list.append(query_page)
     
     return paginated_list
 
@@ -94,8 +97,13 @@ def insert_user():
     login_collection = mongo.db.login
     username=request.form.get('username')
     password=request.form.get('password')
+    c_password=request.form.get('c_password')
+    # Establish if username entered doesn't already exist within the database.
     if login_collection.find_one({'username':username}):
         flash("Username already exists", 'error')
+        return redirect(url_for('home'))
+    elif password!=c_password:
+        flash("Passwords do not match", 'error')
         return redirect(url_for('home'))
     else:
         session['username']=username
