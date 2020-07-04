@@ -1,5 +1,7 @@
 import os
-from flask import Flask, flash, render_template, redirect, request, session, url_for, jsonify
+from datetime import timedelta
+from flask import Flask, flash, render_template, redirect, request, session, app, url_for, jsonify
+from flask_socketio import SocketIO, emit
 import requests
 import math
 import re
@@ -17,13 +19,26 @@ app = Flask(__name__)
 app.config["MONGO_DBNAME"] = 'recomediaDB'
 app.config["MONGO_URI"] = os.environ.get('MONGO_URI')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+socketio = SocketIO(app)
 app.config['API_KEY'] = os.environ.get('API_KEY')
 
 mongo = PyMongo(app)
 
 @app.route('/')
 def home(): 
-    return render_template("index.html") 
+    film_display=film_rankings({"$match": {} }, 8) # sizing variable
+    return render_template("index.html", film_display=film_display) 
+
+@app.before_request
+def make_session_permanent():
+    # Keeps user logged in for a maximum of 5 mins.
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=5)
+
+@socketio.on('disconnect')
+def disconnect_user():
+    session.clear()
+    session.pop('username', None)  #amend these.
 
 @app.route('/username_search_options', methods=['GET'])
 def username_search_options():
@@ -115,7 +130,9 @@ def insert_user():
 @app.route('/userprofile')
 def userprofile():
     user_films=get_user_films(session['username'])
-    return render_template('userprofile.html', username=session['username'], films=user_films)
+    films_per_page=10        
+    top_picks=paginate_query( get_user_films(session['username']), films_per_page)
+    return render_template('userprofile.html', username=session['username'], films=user_films, top_picks=top_picks, films_per_page=films_per_page)
 
 def get_user_films(username):
     film_collection=mongo.db.films
@@ -168,10 +185,41 @@ def insert_rating(username):
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
     return redirect(url_for('userprofile',username=username, films=user_films))
 
+@app.route('/delete_rating/<filmID>')
+def delete_rating(filmID):
+    print("Backend accessed!")
+    film_collection=mongo.db.films
+    film_to_delete=film_collection.aggregate([
+        {'$addFields': {
+            'ratingsCount': {'$size':'$ratings'}
+            }
+        },
+        {"$unwind" : "$ratings"},
+        {'$match':{'imdbID':filmID}},
+        {"$group": {
+            "_id":"$imdbID",
+            'ratingsCount': { '$first':"$ratingsCount"}
+            }
+        }
+        ])
+
+    for film in film_to_delete:
+        ratings_count=film['ratingsCount']
+    
+    # if film has only 1 rating, delete entire film document
+    if ratings_count==1:
+        film_collection.delete_one({'imdbID':filmID})
+    # if more than 1 rating for film, simply delete users rating.
+    else:
+        film_collection.update_one(
+            {'imdbID': filmID},
+            {'$pull': {'ratings': {'username': session['username']} } } 
+        )
+    return redirect(url_for('userprofile') )
 
 @app.route('/show_films/', methods=['POST','GET'])
 def show_films():
-    overall_rankings=film_rankings({"$match":{}})
+    overall_rankings=film_rankings({"$match": {} }, 10)
     
     return render_template('films.html', overall_rankings=overall_rankings  )
 
@@ -179,7 +227,7 @@ def show_films():
 def show_genre_films():
     genre=request.args.get('genre', '' ,type=str)
     print('genre is '+genre)
-    genre_rankings=film_rankings( {'$match': {'genre':genre }} )  
+    genre_rankings=film_rankings( {'$match': {'genre':genre } }, 10 )  
     genre_dict=dumps(genre_rankings)
     print(genre_dict)
 
@@ -190,7 +238,7 @@ def show_genre_films():
 def show_director_films():
     director=request.args.get('director', '' ,type=str)
     print('director is '+director)
-    director_rankings=film_rankings({'$match': {'director': format_title(director) }}) 
+    director_rankings=film_rankings({'$match': {'director': format_title(director) } }, 10) 
     director_dict=dumps(director_rankings)
     print(director_dict)
 
@@ -199,14 +247,14 @@ def show_director_films():
 @app.route('/show_decade_films', methods=['GET'])
 def show_decade_films():
     decade=request.args.get('decade', 0 ,type=int)
-    decade_rankings=film_rankings( {'$match':{'year': { '$gte': decade, '$lt': decade+10 } } }) 
+    decade_rankings=film_rankings( {'$match':{'year': { '$gte': decade, '$lt': decade+10 } } }, 10) 
     decade_dict=dumps(decade_rankings)
     print('output to films.html '+decade_dict)
 
     return jsonify(result=decade_dict)
      
 
-def film_rankings(query):
+def film_rankings(query, limit):
     film_collection=mongo.db.films
     film_rankings=film_collection.aggregate([
         {'$addFields': {
@@ -220,13 +268,14 @@ def film_rankings(query):
             'imdbID': {'$first': '$imdbID' },
             'title' : { '$first': '$title' },
             'year': { '$first': '$year' },
+            'poster': { '$first': '$poster'},
             "_id":"$imdbID",
-            'ratingsCount': { '$first':"$ratingsCount"},
+            'ratingsCount': { '$first': "$ratingsCount"},
             "averageRating" : 
                 {"$avg" : "$ratings.rating"}
             }},
         { '$sort' : { 'averageRating' : -1, 'ratingsCount': -1}},
-        { '$limit': 10 }
+        { '$limit': limit }
         ])
     return film_rankings
 
