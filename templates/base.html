@@ -14,32 +14,38 @@
 <body>
 <nav>
     <div class="nav-wrapper">
-      <a href="#!" class="brand-logo center">
-        <h1>RecoMedia</h1>
-      </a>
-      <ul class="right hide-on-med-and-down">
-    {% if 'username' in session %}
-        <li id="login-status">Logged in as {{session['username']}}</li>
-    {% endif %}
-        <li><a href="{{url_for('home')}}">Home</a></li>
-        <li><a id="dropdown-users" class='dropdown-trigger' href='' data-target='dropdown'>Users</a>
-            <ul id='dropdown' class='dropdown-content'>
-                <li id="search-bar-container">
-                    <form action="{{url_for('view_user' ) }}" method="POST">
-                        <input type="text" name="username" placeholder="Look up user" id="user-search" onkeyup="filterUsers(this)">
-                        <button id="user-search-btn" type="submit"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
-                    </form>
-                </li>
-                <li id="suggestion-description">User profiles matching your search</li>
-            </ul>
-        </li>
         {% if 'username' in session %}
-        <li><a href="{{ url_for('logout') }}">Log out</a></li>
-        {% else %}
-        <li><a href="{{ url_for('login_page') }}">Login</a></li>
+        <ul class="left hide-on-small-and-down" id="left-nav">
+            <li id="login-status">Logged in as {{session['username']}}</li>
+        </ul>
         {% endif %}
-        <li class="active"><a href="{{url_for('show_films')}}">Films</a></li>
-      </ul>
+        <a href="#!" class="brand-logo center">
+            <h1>RecoMovie</h1>
+        </a>
+        <ul class="right hide-on-med-and-down" id="right-nav">
+        {% if 'username' in session %}
+            <li><a href="{{url_for('userprofile')}}">Home</a></li>
+        {% else %}
+            <li><a href="{{url_for('home')}}">Home</a></li>
+        {% endif %}
+            <li><a id="dropdown-users" class='dropdown-trigger' href='' data-target='dropdown'>Users</a>
+                <ul id='dropdown' class='dropdown-content'>
+                    <li id="search-bar-container">
+                        <form action="{{url_for('view_user' ) }}" method="POST">
+                            <input type="text" name="username" placeholder="Look up user" id="user-search" onkeyup="filterUsers(this)">
+                            <button id="user-search-btn" type="submit"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
+                        </form>
+                    </li>
+                    <li id="suggestion-description">User profiles matching your search</li>
+                </ul>
+            </li>
+            {% if 'username' in session %}
+            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+            {% else %}
+            <li><a href="{{ url_for('login_page') }}">Login</a></li>
+            {% endif %}
+            <li class="active"><a href="{{url_for('show_films')}}">Films</a></li>
+        </ul>
     </div>
 </nav>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -76,10 +82,10 @@
      }
 
      function getSuggestion(suggestion){
-         // Upon clicking suggestion (dynamically created in filterUsers function) suggestion appears 
-         // in input field.
-         s=$(suggestion).text();
-         $('#user-search').val(s);
+        // Upon clicking suggestion (dynamically created in filterUsers function) suggestion appears 
+        // in input field.
+        let s=$(suggestion).text();
+        $('#user-search').val(s);
      }
     </script>
 </body>
