@@ -4,7 +4,7 @@
 <h2>Welcome {{username}}</h2>
 
 <h3>Your Films</h3>
-{% set film_count = films.count() %}
+{% set film_count = films|length %}
 {% if film_count > 0 %}
 
 <p>You have rated {{ film_count }} films</p>
@@ -56,11 +56,64 @@
     </div>
     <div class="next hide-on-med-and-down">></div>
 </div>
+
+<h3>Your Top Picks</h3>
+
+<ul class="pagination top-picks">
+    <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+    {% for page in range(top_picks|count) %}
+    {% if page +1==1 %}
+    <li class="active" id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    {% else %}
+    <li id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    {% endif %}
+    <a href="#tp-page-{{page+1}}">{{page+1}}</a></li>
+    {% endfor %}
+    <li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+</ul>
+
+<!-- Modal Trigger -->
+ <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal Test</a> -->
+
+  <!-- Modal Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <h4>Confirmation Delete</h4>
+      <p id="del-msg"></p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close btn-flat">Keep</a>
+      <a href="" id="del-btn" class="modal-close btn-flat">Delete</a>
+    </div>
+  </div>
+          
+
+{% set pages_counted = [] %}
+{% for page in top_picks %}
+<div id="tp-page-{{loop.index}}" class="film-card-container top-picks">
+<div class="table">
+{% for film in page %}
+    <div class="table-row film-card">
+        <div class="table-cell rank">{{ loop.index + (pages_counted|length*films_per_page) }}</div>
+        <a class="table-cell title" id="title-{{film.imdbID}}" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+        {{film.title}}</a>
+        <div class="table-cell year" id="year-{{film.imdbID}}" >{{film.year}}</div>
+        <div class="table-cell rating">{{film.ratings.0.rating}}</div>  
+        <div class="table-cell delete-rating" id="del-{{film.imdbID}}" onclick="confirmDelete(this)"><span class="material-icons">delete</span></div>  
+    </div>
+{% endfor %}
+</div>
+</div>
+{% set __ = pages_counted.append(1) %}
+{% endfor %}
+
+<h3>Add a rating to your collection.</h3>
 {% else %}
 <p>You don't currently have any film reviews.</p>
-{% endif %}
 
 <h3>Rate your first film now.</h3>
+{% endif %}
+<p>If adding a review for a previously added film. The latest review will overwrite the pre-existing one.</p>
 
 <form action="{{url_for('insert_rating', username='{{username}}' ) }}" method="POST" class="col s12">
 	{% with messages = get_flashed_messages(with_categories=true) %}
@@ -144,19 +197,25 @@
 	</div>
 	<div class="row">
 		<div class="input-field col s12">
-			<textarea id="review" name="review" class="materialize-textarea" required></textarea>
-			<label for="review">Review</label>
+			<textarea id="review" name="review" maxlength="500" class="materialize-textarea" required></textarea>
+			<label for="review">Review<br></label>
 		</div>
+        <span>Please note the review is limited to 500 characters.</span>
 	</div>
 
 	<div class="row" id="err-msg">
 	</div>
-	<button class="btn waves-effect waves-light" type="submit" name="action">Create Rating
+	<button class="btn form-submit" type="submit" name="action">Create Rating
         <i class="material-icons right"></i>
     </button>
 </form>
 
+{% if film_count > 0 %}
+    Remove a rating
+{% endif %}
+
 <script language='javascript' type='text/javascript'>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
    // var film_options;
     var elems;
     var instances;
@@ -180,6 +239,7 @@
         $('.next').click(function(){
             $('.carousel').carousel('next');
         });
+        $('.modal').modal();
     });
 
     function getSuggestions(filmname){
@@ -215,14 +275,12 @@
                     id++;
                     $("#film-display").append(`<div class="film-data" id="`+film.imdbID+`"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
                     arrayNoDuplicatesID.push(film.imdbID);
-                    //$('#years').append(`<option id="year`+id+`" value="`+film.Year+`" onclick="getFilm(this)">`+film.Year+`</option>`)
-                    //$('#imdbID').append(`<option value="`+film.imdbID+`">`+film.imdbID+`</option>`)
-                }
+                    }
             }
             if (id===0){
                 $("#film-display").html("<p>Unfortunately this film doesn't exist in our database.</p>")
             }
-            //instances = M.FormSelect.init(elems, data);
+            
              $('#film-display > div').on('click', function() {
                 console.log('click registered.')
                 //console.log($(this).id)
@@ -248,15 +306,6 @@
                     let fields=["imdbID","Year","Director","Actors","Runtime"];
                     for ( f of fields)
                         createElem(f, chosen_id);
-                
-                        
-                        
-                        //$("#imdbID").append(`<option value="`+rawdata["imdbID"]+`" disabled selected>`+rawdata["imdbID"]+`</option>`);
-                        /*$("#years").html(`<option value="`+rawdata["Year"]+`" disabled selected>`+rawdata["Year"]+`</option>`);
-                        $("#director").html(`<option value="`+rawdata["Director"]+`" disabled selected>`+rawdata["Director"]+`</option>`);
-                        $('#cast').html(`<option value="`+rawdata["Actors"]+`" disabled selected>`+rawdata["Actors"]+`</option>`);
-                        $('#runtime').html(`<option value="`+rawdata["Runtime"]+`" disabled selected>`+rawdata["Runtime"]+`</option>`);*/
-                        
                         arrayNoDuplicatesID.push(film.imdbID);
                 }
 
@@ -275,6 +324,14 @@
             option.innerHTML=rawdata[parentNode];
             document.getElementById(parentNode).appendChild(option);
         });
+    }
+    function confirmDelete(film){
+        let filmId=film.id.slice(4);
+        let filmTitle=$('#title-'+filmId).text();
+        let filmYear=$('#year-'+filmId).text();
+        $('#del-msg').html("Delete review for "+filmTitle+" ("+filmYear+") ?");
+        $('#modal1').modal('open');
+        $('#del-btn').attr("href", $SCRIPT_ROOT+'/delete_rating/'+filmId); 
     }
 </script>
 
