@@ -1,5 +1,19 @@
 /****************************************** Global Selectors          */
-
+.form-container{
+    margin: auto;
+    padding: 15px 10px;
+}
+.form-container h2 {
+    font-size: 2.2rem;
+}
+.form-container h3 {
+    font-size: 2rem;
+}
+p, li {
+    font-family: "Oxygen", sans-serif;
+    color: #000;
+    font-size: 1.1rem;
+}
 label {
     font-size: 1.2rem;
     color: #4d4d4d;
@@ -9,9 +23,32 @@ form button {
     margin-top: 8px;
     padding: 4px 12px;
 }
+.btn.form-submit{
+    background-color: #edeae5;
+    color: black;
+    font-family: "Oxygen", sans-serif;
+    text-transform: capitalize;
+}
+@media screen and (min-width: 450px) {
+    p, li {
+        font-size: 1.4rem !important;
+    }
+    .form-container{
+        width: 80%;
+        padding: 30px 20px;
+    }
+}
+
+@media screen and (min-width: 1300px) {
+    .form-container{
+        width: 50%;
+    }
+}
 /****************************************** Global Selectors - End    */
 
-h1 {
+/****************************************** base.html                  */
+
+nav h1 {
     margin: 1.8rem 0;
     font-family: "Bevan", sans-serif;
     line-height: 25%;
@@ -26,15 +63,18 @@ nav ul {
     margin: 0 20px;
 }
 nav ul a {
+    padding: 0 1vw;
     color: #000;
 }
 
 p, li {
     font-family: "Oxygen", sans-serif;
     color: #000;
+    font-size: 1.1rem;
 }
 #login-status{
     margin-right: 20px;
+    font-size: 16px !important;
     font-weight: bold;
 }
 
@@ -81,6 +121,7 @@ nav form {
     padding: 15px;
     color: #4d4d4d;
     font-family: "Oxygen", sans-serif;
+    font-size: 16px !important;
     font-style: italic;
 }
 #suggestion-description:hover{
@@ -89,17 +130,30 @@ nav form {
 nav .suggestions {
     padding: 15px;
     border-bottom: 1px solid #9E9E9E;
+    font-size: 16px !important;
 }
 nav .suggestions:hover {
     background-color: white;
     font-weight: bold;
 }
+
+@media screen and (min-width: 700px) {
+}
+
 @media screen and (min-width: 900px) {
+    nav ul a {
+        padding: 0 1.5vw;
+    }
+    #right-nav {
+        padding-right: 20px;
+    }
     h1 {
         font-size: 2.8rem;
     }
 }
-/*********************************************** Index page    */
+/*********************************************** base.html - End    */
+
+/*********************************************** Index page         */
 
 .bg-film {
     position: relative;
@@ -110,6 +164,45 @@ nav .suggestions:hover {
     max-width: 100vw;
 }
 
+.tagline{
+    padding: 30px 0px;
+    background-color: black;
+    
+}
+.tagline h1{
+    color: white;
+    font-size: 2.0rem;
+    margin: 0 0 0 5vw;
+}
+.film-images-container{
+    display: flex;
+    justify-content: center;
+    background-color: black;
+}
+.film-images{
+    display: grid;
+    grid-template-columns: 15vw 15vw 15vw 15vw 15vw 15vw;
+    overflow: hidden;
+    max-height: 22.5vw;
+}
+.film-images-container img{
+    height: 22.5vw;
+}
+.main-description {
+    background-color: black;
+    padding: 30px 5vw;
+}
+.main-description p{
+    margin-block-start: 0;
+    color: white;
+}
+.main-description span{
+    color: white;
+    font-weight: bold;
+}
+.main-description span:hover{
+    color: #f5c518;
+}
 .red {
     color: red;
 }
@@ -122,6 +215,25 @@ nav .suggestions:hover {
 @media screen and (min-width: 450px) {
     .bg-film img {
         width: 450px;
+    }
+}
+@media screen and (min-width: 1300px) {
+    .film-images{
+        grid-template-columns: 200px 200px 200px 200px 200px 200px;
+        max-height: 300px;
+    }
+    .film-images-container img{
+        height: 300px;
+    }
+}
+@media screen and (min-width: 1500px) {
+    .film-images{
+        grid-template-columns: 200px 200px 200px 200px 200px 200px 200px;
+    }
+}
+@media screen and (min-width: 1700px) {
+    .film-images{
+        grid-template-columns: 200px 200px 200px 200px 200px 200px 200px 200px;
     }
 }
 /*********************************************** Login  */
@@ -204,7 +316,7 @@ nav .suggestions:hover {
     justify-content: center;
     align-items: center;
 }
-html{
+.table-container html{
     line-height: 1;
 }
 .table-container{
@@ -288,6 +400,31 @@ td{
 }
 
 /*********************************************** Film Carousel - End */
+
+/*********************************************** Top Picks           */
+
+.modal{
+    background-color: beige;
+}
+.modal .modal-footer {
+    display: flex;
+    background-color: beige;
+    justify-content: space-around;
+}
+.modal .modal-close {
+    margin: 0px !important;
+    width: 15%;
+    text-align: center;
+}
+.btn-flat {
+    border: 1px solid black;
+    background-color: #fce181;
+}
+.btn-flat:hover {
+    background-color: white;
+    font-weight: bold;
+}
+/*********************************************** Top Picks - End     */
 
 /*********************************************** Insert form         */
 
@@ -402,6 +539,13 @@ form .row span {
 .table-cell.ratings-count {
     display: none !important;
 }
+.film-card .delete-rating{
+    width: 40px;
+    text-align: center;
+}
+.film-card .delete-rating span:hover{
+    color: red;
+}
 
 @media screen and (min-width:700px){
     .film-card-container{
@@ -426,7 +570,14 @@ form .row span {
         color: white;
         font-weight: bold;
     }
-    .film-card .title{
+    .film-card .title a{
+        width: inherit;
+        height: inherit;
+        color: black;
+    }
+    .film-card .title:hover{
+        background-color: #fff;
+        font-weight: bold;
     }
     .film-card .year{
         width: 12%;
