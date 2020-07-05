@@ -63,7 +63,7 @@
     <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
     {% for page in range(top_picks|count) %}
     {% if page +1==1 %}
-    <li class="active" id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    <li class="page-btn active" id="tp-page-btn{{page+1}}" onclick="goToPage(this)">
     {% else %}
     <li id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
     {% endif %}
@@ -72,20 +72,17 @@
     <li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
 </ul>
 
-<!-- Modal Trigger -->
- <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal Test</a> -->
-
-  <!-- Modal Structure -->
-  <div id="modal1" class="modal">
+<!-- Modal for Deletion -->
+<div id="modal1" class="modal">
     <div class="modal-content">
-      <h4>Confirmation Delete</h4>
-      <p id="del-msg"></p>
+        <h4>Confirmation Delete</h4>
+        <p id="del-msg"></p>
     </div>
     <div class="modal-footer">
       <a href="#!" class="modal-close btn-flat">Keep</a>
       <a href="" id="del-btn" class="modal-close btn-flat">Delete</a>
     </div>
-  </div>
+</div>  
           
 
 {% set pages_counted = [] %}
@@ -113,7 +110,7 @@
 
 <h3>Rate your first film now.</h3>
 {% endif %}
-<p>If adding a review for a previously added film. The latest review will overwrite the pre-existing one.</p>
+<p>If creating a review for a previously added film, the latest review will overwrite the pre-existing one.</p>
 
 <form action="{{url_for('insert_rating', username='{{username}}' ) }}" method="POST" class="col s12">
 	{% with messages = get_flashed_messages(with_categories=true) %}
@@ -210,129 +207,9 @@
     </button>
 </form>
 
-{% if film_count > 0 %}
-    Remove a rating
-{% endif %}
 
 <script language='javascript' type='text/javascript'>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-   // var film_options;
-    var elems;
-    var instances;
-    var currYear = (new Date()).getFullYear();
-
-    $(document).ready(function(){
-        //$('select').formSelect();
-        elems = document.querySelectorAll('select');
-        $('#years').on('change', function() {
-            console.log('change registered.')
-            console.log($(this).val())
-            let year=$(this).val();
-            getFilm(year);
-        });
-        $('.carousel.carousel-slider').carousel({
-            fullWidth: true,
-        });
-        $('.prev').click(function(){
-            $('.carousel').carousel('prev');
-        });
-        $('.next').click(function(){
-            $('.carousel').carousel('next');
-        });
-        $('.modal').modal();
-    });
-
-    function getSuggestions(filmname){
-        $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
-            console.log('getSuggestions entered.')
-            /**** clear previous suggestions ****/
-            var title_object = {};
-            /**** autocomplete film suggestions ****/
-            for (film of rawdata.Search){
-                title_object[film.Title] = null;
-            }
-
-            $('input.autocomplete').autocomplete({
-                data: title_object,
-                limit: 5
-            });  
-        }); 
-    }  
-           
-	function getFilms(filmname){
-	    $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
-            /**** clear previous search data ****/
-            $("#film-display").html("");
-            $('#years').html(`<option value="" disabled selected>Choose which year</option>`);
-            $('#imdbID').html(`<option value="" disabled selected>Imdb ID</option>`);
-            var year_object = {};
-	        var arrayNoDuplicatesID = [];
-	        var id = 0;
-	        for ( film of rawdata.Search){
-	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && arrayNoDuplicatesID.indexOf(film.imdbID)===-1 && film.Type==='movie'){
-	                console.log("condition accessed.")
-                    year_object[film.Year] = null;
-                    id++;
-                    $("#film-display").append(`<div class="film-data" id="`+film.imdbID+`"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
-                    arrayNoDuplicatesID.push(film.imdbID);
-                    }
-            }
-            if (id===0){
-                $("#film-display").html("<p>Unfortunately this film doesn't exist in our database.</p>")
-            }
-            
-             $('#film-display > div').on('click', function() {
-                console.log('click registered.')
-                //console.log($(this).id)
-                console.log('id is '+this.id)
-                getFilm(this.id);
-            });
-	    });
-    }
-
-    function getFilm(chosen_id) {
-        console.log('getFilm accessed.')
-        let film_title=$('#film_title').val();
-        $('select').formSelect();
-	    $.get('https://www.omdbapi.com/?i='+chosen_id+'&apikey=61e49492',function(rawdata){
-            //$("#film-display").html("");
-            let arrayNoDuplicatesID=[];
-            var rawstring=JSON.stringify(rawdata);
-            omdb_data = JSON.parse(rawstring)
-            console.log('rawstring is ' +rawstring+', Actors = '+rawdata["Actors"]+' Director = '+rawdata["Director"]+' runtime= '+rawdata["Runtime"])           
-                
-                if (arrayNoDuplicatesID.indexOf(rawdata["imdbID"])===-1){
-                        //$("#film-display").html(`<div class="film-data" id="title1"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
-                    let fields=["imdbID","Year","Director","Actors","Runtime"];
-                    for ( f of fields)
-                        createElem(f, chosen_id);
-                        arrayNoDuplicatesID.push(film.imdbID);
-                }
-
-        });
-    }
-    function createElem(parentNode, film_id) {
-        $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
-            console.log(parentNode)
-            $("#"+parentNode).empty();
-            let option=document.createElement("OPTION");
-            let att = document.createAttribute("value");       // Create a "class" attribute
-            att.value = rawdata[parentNode];                           // Set the value of the class attribute
-            option.setAttributeNode(att);                  
-            //option.attr({value: rawdata[parentNode], disabled: "disabled", selected: "selected");
-            console.log(parentNode+' is '+option.value)
-            option.innerHTML=rawdata[parentNode];
-            document.getElementById(parentNode).appendChild(option);
-        });
-    }
-    function confirmDelete(film){
-        let filmId=film.id.slice(4);
-        let filmTitle=$('#title-'+filmId).text();
-        let filmYear=$('#year-'+filmId).text();
-        $('#del-msg').html("Delete review for "+filmTitle+" ("+filmYear+") ?");
-        $('#modal1').modal('open');
-        $('#del-btn').attr("href", $SCRIPT_ROOT+'/delete_rating/'+filmId); 
-    }
 </script>
 
 {% endblock %}

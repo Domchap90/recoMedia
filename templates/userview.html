@@ -78,7 +78,7 @@
     <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
     {% for page in range(top_picks|count) %}
     {% if page +1==1 %}
-    <li class="active" id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    <li class="page-btn active" id="tp-page-btn{{page+1}}" onclick="goToPage(this)">
     {% else %}
     <li id="tp-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
     {% endif %}
@@ -110,7 +110,7 @@
     <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
     {% for page in range(new_releases|count) %}
     {% if page +1==1 %}
-    <li class="active" id="nr-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
+    <li id="nr-page-btn{{page+1}}" class="active page-btn" onclick="goToPage(this)">
     {% else %}
     <li id="nr-page-btn{{page+1}}" class="page-btn" onclick="goToPage(this)">
     {% endif %}
@@ -142,165 +142,6 @@
 {% endif %}
 
 <script language='javascript' type='text/javascript'>
-   // var film_options;
-    var elems;
-    var instances;
-    var currYear = (new Date()).getFullYear();
-
-    $(document).ready(function(){
-        //$('select').formSelect();
-        elems = document.querySelectorAll('select');
-        $('.carousel.carousel-slider').carousel({
-            fullWidth: true,
-        });
-        $('.prev').click(function(){
-            $('.carousel').carousel('prev');
-        });
-        $('.next').click(function(){
-            $('.carousel').carousel('next');
-        });
-        btnCount=$('.pagination > li').length;
-        console.log('length is '+btnCount)
-        // eliminates chevrons where only one page exists within pagination.
-        // button count is 3 in this case because 2 of the buttons are chevrons NOT page buttons.
-        if (btnCount==3){ 
-          $("#left-chev").hide();
-          $("#right-chev").hide();
-        }
-    });
-
-    function getSuggestions(filmname){
-        $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
-            console.log('getSuggestions entered.')
-            /**** clear previous suggestions ****/
-            var title_object = {};
-            /**** autocomplete film suggestions ****/
-            for (film of rawdata.Search){
-                title_object[film.Title] = null;
-            }
-
-            $('input.autocomplete').autocomplete({
-                data: title_object,
-                limit: 5
-            });  
-        }); 
-    }  
-
-    function getPage(pageButton){
-        if ($(pageButton).parent().hasClass('top-picks')){
-            $(".top-picks.film-card-container").hide();
-        }
-        if ($(pageButton).parent().hasClass('new-releases')){
-            $(".new-releases.film-card-container").hide();
-        }
-        let pageLink=$(pageButton).children('a').attr('href');
-        /* The link attribute is the same as the id of its associated page table.*/
-        $(pageLink).css('display', 'grid');
-    }
-
-    function updateChevronState(activeBtnId){
-        let tpPageBtnCount=$('.top-picks > li').length-2;
-        let nrPageBtnCount=$('.new-releases > li').length-2;
-
-        /* Determine chevron states to be disabled or not - applies to prevPage() and nextPage() also  --> refactor / on doc ready */
-        /* Top-pick Chevrons */
-        if (activeBtnId=="tp-page-btn1"){
-            $('.top-picks .right-chev').removeClass("disabled");
-            $('.top-picks .left-chev').addClass("disabled");
-        } else if (activeBtnId=="tp-page-btn"+tpPageBtnCount){
-            $('.top-picks .left-chev').removeClass("disabled");
-            $('.top-picks .right-chev').addClass("disabled");
-        } else if (activeBtnId.slice(0,11)=='tp-page-btn'){    /* Both chevrons enabled */
-            $('.top-picks .left-chev').removeClass("disabled");
-            $('.top-picks .right-chev').removeClass("disabled");
-        }
-        /* New-releases Chevrons */
-        if (activeBtnId=="nr-page-btn1"){
-            $('.new-releases .right-chev').removeClass("disabled");
-            $('.new-releases .left-chev').addClass("disabled");
-        } else if (activeBtnId=="nr-page-btn"+nrPageBtnCount){
-            $('.new-releases .left-chev').removeClass("disabled");
-            $('.new-releases .right-chev').addClass("disabled");
-        } else if(activeBtnId.slice(0,11)=='nr-page-btn'){    /* Both chevrons enabled */
-            $('.new-releases .left-chev').removeClass("disabled");
-            $('.new-releases .right-chev').removeClass("disabled");
-        }
-    }
-
-    function goToPage(page){
-        getPage(page);
-        if ($(page).parent().hasClass('top-picks')){
-            $('.top-picks > li').removeClass('active');
-        }
-        if ($(page).parent().hasClass('new-releases')){
-            $('.new-releases > li').removeClass('active');
-        }
-        $(page).addClass("active");
-        let activeBtnId=$(page).attr("id");
-        updateChevronState(activeBtnId);  
-    }
-
-    function getCurrentBtn(paginationClass){
-        // Retrieves the page button with active status (currently displaying that number page of results) 
-        // paginationClass distinguishes the sets of buttons being dealth with.
-        let currentBtnId;
-        let pageBtns=$('.pagination'+paginationClass).children().each(function(){
-            if($(this).hasClass('active')){
-                currentBtnId=$(this).attr('id');
-            }
-            return currentBtnId;
-        });
-        return currentBtnId;
-    }
-
-    function prevPage(chevron) {
-        let isTopPicks=$(chevron).parent().hasClass('top-picks');
-        let isNewRelease=$(chevron).parent().hasClass('new-releases');
-        /* if chevron btn enabled allow prev function to be carried out */
-        if (!$(chevron).hasClass("disabled") ){
-            let currentBtnId, prevBtnId;
-
-            if (isTopPicks){
-                currentBtnId=getCurrentBtn('.top-picks');
-                // Extracts number from page button Id and decrements by 1 to establish previous page.
-                prevBtnId='tp-page-btn'+(String(currentBtnId).match(/\d+/)-1 ); 
-            }
-            if (isNewRelease){
-                currentBtnId=getCurrentBtn('.new-releases');
-                prevBtnId='nr-page-btn'+(String(currentBtnId).match(/\d+/)-1 );
-            }
-            $('#'+currentBtnId).removeClass('active');
-            $('#'+prevBtnId).addClass('active');
-            /* Change page table showing */
-            getPage('#'+prevBtnId);
-            updateChevronState(prevBtnId); 
-        }
-    }
-
-    function nextPage(chevron) {
-        let isTopPicks=$(chevron).parent().hasClass('top-picks');
-        let isNewRelease=$(chevron).parent().hasClass('new-releases');
-        /* if chevron btn enabled allow next function to be carried out */
-        if (!$(chevron).hasClass("disabled")){
-            let currentBtnId, nextBtnId;
-            if (isTopPicks){
-                currentBtnId=getCurrentBtn('.top-picks');
-                // Extracts number from page button Id and decrements by 1 to establish previous page.
-                nextBtnId='tp-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/)) ); 
-            }
-            if (isNewRelease){
-                currentBtnId=getCurrentBtn('.new-releases');
-                nextBtnId='nr-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/) ) );
-            }
-            console.log('nextBtnId is '+nextBtnId)
-            $('#'+currentBtnId).removeClass('active');
-            $('#'+nextBtnId).addClass('active');
-            /* Change page table showing */
-            getPage('#'+nextBtnId);
-            updateChevronState(nextBtnId); 
-        }
-    }
-   
 </script>
 
 {% endblock %}

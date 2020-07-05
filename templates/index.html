@@ -59,24 +59,6 @@
     </div>
 </div>
 
-
-<script language='javascript' type='text/javascript'>
-    function checkPasswordsMatch(input) {
-        console.log('checker function accessed.')
-        if ( $('#c_password').val() != $('#password').val() && $('#c_password').val().length>0 ) {
-            console.log('passwords not equal accessed.\n'+$('#password').val()+' , '+input.value)
-            $("div #err-msg").html("Password Must be Matching.");
-            $("#err-msg").css("color","red");
-        } else {
-            // input is valid -- reset the error message
-            console.log('passwords equal accessed.\n'+$('#password').val()+' , '+input.value)
-            $("#err-msg").html("<p></p>");
-        }
-    }
-    $(document).ready(function() {
-        M.updateTextFields();
-    });
-</script>
 {% endblock %}
 
 
