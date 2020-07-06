@@ -14,7 +14,7 @@
 {% endwith %}
 
 {% if films %}
-<h2>{{username}}'s Films</h2>
+<h2 id="user-title">{{username}}'s Films</h2>
 
 {% set film_count = films|length %}
 {% if film_count > 0 %}
@@ -135,6 +135,24 @@
 </div>
 {% set __ = nr_pages_counted.append(1) %}
 {% endfor %}    
+
+<h3>View {{username}}'s films by Genre</h3>
+
+<div class="category-grid-container">
+    <div class="box-grid">
+        <div id="Animation" class="box-item genre-item" onclick="getUserGenre(this)">Animation</div>
+        <div id="Action" class="box-item genre-item" onclick="getUserGenre(this)">Action</div>
+        <div id="Sci-fi" class="box-item genre-item" onclick="getUserGenre(this)">Sci-fi</div>
+        <div id="Comedy" class="box-item genre-item" onclick="getUserGenre(this)">Comedy</div>
+        <div id="Crime" class="box-item genre-item" onclick="getUserGenre(this)">Crime</div>
+        <div id="Thriller" class="box-item genre-item" onclick="getUserGenre(this)">Thriller</div>
+        <div id="Romance" class="box-item genre-item" onclick="getUserGenre(this)">Romance</div>
+        <div id="Horror" class="box-item genre-item" onclick="getUserGenre(this)">Horror</div>
+        <div id="Fantasy" class="box-item genre-item" onclick="getUserGenre(this)">Fantasy</div>
+    </div>
+</div>
+
+<div id="genre-results-area"></div>
 
 {% else %}
 <p>{{username}} doesn't currently have any film reviews.</p>

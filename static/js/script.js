@@ -24,6 +24,7 @@ $(document).ready(function(){
     $('.modal').modal();
     let tpBtnCount=$('.top-picks > .page-btn').length;
     let nrBtnCount=$('.new-releases > .page-btn').length;
+    // GenPageBtnCount initiated in the getUserGenre function (as AJAX btnCount will be 0 on document ready)
     console.log(tpBtnCount)
     console.log(nrBtnCount)
     // eliminates chevrons where only one page exists within pagination.
@@ -148,120 +149,226 @@ function checkPasswordsMatch(input) {
 
 //  Userview 
 
-    function getPage(pageButton){
-        if ($(pageButton).parent().hasClass('top-picks')){
-            $(".top-picks.film-card-container").hide();
-        }
-        if ($(pageButton).parent().hasClass('new-releases')){
-            $(".new-releases.film-card-container").hide();
-        }
-        let pageLink=$(pageButton).children('a').attr('href');
-        /* The link attribute is the same as the id of its associated page table.*/
-        $(pageLink).css('display', 'grid');
+function getPage(pageButton){
+    if ($(pageButton).parent().hasClass('top-picks')){
+        $(".top-picks.film-card-container").hide();
     }
-
-    function updateChevronState(activeBtnId){
-        let tpPageBtnCount=$('.top-picks > li').length-2;
-        let nrPageBtnCount=$('.new-releases > li').length-2;
-
-        /* Determine chevron states to be disabled or not - applies to prevPage() and nextPage() also  --> refactor / on doc ready */
-        /* Top-pick Chevrons */
-        if (activeBtnId=="tp-page-btn1"){
-            $('.top-picks .right-chev').removeClass("disabled");
-            $('.top-picks .left-chev').addClass("disabled");
-        } else if (activeBtnId=="tp-page-btn"+tpPageBtnCount){
-            $('.top-picks .left-chev').removeClass("disabled");
-            $('.top-picks .right-chev').addClass("disabled");
-        } else if (activeBtnId.slice(0,11)=='tp-page-btn'){    /* Both chevrons enabled */
-            $('.top-picks .left-chev').removeClass("disabled");
-            $('.top-picks .right-chev').removeClass("disabled");
-        }
-        /* New-releases Chevrons */
-        if (activeBtnId=="nr-page-btn1"){
-            $('.new-releases .right-chev').removeClass("disabled");
-            $('.new-releases .left-chev').addClass("disabled");
-        } else if (activeBtnId=="nr-page-btn"+nrPageBtnCount){
-            $('.new-releases .left-chev').removeClass("disabled");
-            $('.new-releases .right-chev').addClass("disabled");
-        } else if(activeBtnId.slice(0,11)=='nr-page-btn'){    /* Both chevrons enabled */
-            $('.new-releases .left-chev').removeClass("disabled");
-            $('.new-releases .right-chev').removeClass("disabled");
-        }
+    if ($(pageButton).parent().hasClass('new-releases')){
+        $(".new-releases.film-card-container").hide();
     }
-
-    function goToPage(page){
-        getPage(page);
-        if ($(page).parent().hasClass('top-picks')){
-            $('.top-picks > li').removeClass('active');
-        }
-        if ($(page).parent().hasClass('new-releases')){
-            $('.new-releases > li').removeClass('active');
-        }
-        $(page).addClass("active");
-        let activeBtnId=$(page).attr("id");
-        updateChevronState(activeBtnId);  
+    if ($(pageButton).parent().hasClass('genre-picks')){
+        $(".genre-picks.film-card-container").hide();
     }
+    let pageLink=$(pageButton).children('a').attr('href');
+    /* The link attribute is the same as the id of its associated page table.*/
+    $(pageLink).css('display', 'grid');
+}
 
-    function getCurrentBtn(paginationClass){
-        // Retrieves the page button with active status (currently displaying that number page of results) 
-        // paginationClass distinguishes the sets of buttons being dealth with.
-        let currentBtnId;
-        let pageBtns=$('.pagination'+paginationClass).children().each(function(){
-            if($(this).hasClass('active')){
-                currentBtnId=$(this).attr('id');
-            }
-            return currentBtnId;
-        });
+function updateChevronState(activeBtnId){
+    let tpPageBtnCount=$('.top-picks > li').length-2;
+    let nrPageBtnCount=$('.new-releases > li').length-2;
+    let genPageBtnCount=$('.genre-picks > li').length-2;
+    
+    /* Determine chevron states to be disabled or not - applies to prevPage() and nextPage() also  --> refactor / on doc ready */
+    /* Top-pick Chevrons */
+    if (activeBtnId=="tp-page-btn1"){
+        $('.top-picks .right-chev').removeClass("disabled");
+        $('.top-picks .left-chev').addClass("disabled");
+    } else if (activeBtnId=="tp-page-btn"+tpPageBtnCount){
+        $('.top-picks .left-chev').removeClass("disabled");
+        $('.top-picks .right-chev').addClass("disabled");
+    } else if (activeBtnId.slice(0,11)=='tp-page-btn'){    /* Both chevrons enabled */
+        $('.top-picks .left-chev').removeClass("disabled");
+        $('.top-picks .right-chev').removeClass("disabled");
+    }
+    /* New-releases Chevrons */
+    if (activeBtnId=="nr-page-btn1"){
+        $('.new-releases .right-chev').removeClass("disabled");
+        $('.new-releases .left-chev').addClass("disabled");
+    } else if (activeBtnId=="nr-page-btn"+nrPageBtnCount){
+        $('.new-releases .left-chev').removeClass("disabled");
+        $('.new-releases .right-chev').addClass("disabled");
+    } else if(activeBtnId.slice(0,11)=='nr-page-btn'){    /* Both chevrons enabled */
+        $('.new-releases .left-chev').removeClass("disabled");
+        $('.new-releases .right-chev').removeClass("disabled");
+    }
+    /* Genre-picks Chevrons */
+    if (activeBtnId=="gen-page-btn1"){
+        $('.genre-picks .right-chev').removeClass("disabled");
+        $('.genre-picks .left-chev').addClass("disabled");
+    } else if (activeBtnId=="gen-page-btn"+genPageBtnCount){
+        $('.genre-picks .left-chev').removeClass("disabled");
+        $('.genre-picks .right-chev').addClass("disabled");
+    } else if(activeBtnId.slice(0,12)=='gen-page-btn'){    /* Both chevrons enabled */
+        $('.genre-picks .left-chev').removeClass("disabled");
+        $('.genre-picks .right-chev').removeClass("disabled");
+    }
+}
+
+function goToPage(page){
+    getPage(page);
+    if ($(page).parent().hasClass('top-picks')){
+        $('.top-picks > li').removeClass('active');
+    }
+    if ($(page).parent().hasClass('new-releases')){
+        $('.new-releases > li').removeClass('active');
+    }
+    if ($(page).parent().hasClass('genre-picks')){
+        $('.genre-picks > li').removeClass('active');
+    }
+    $(page).addClass("active");
+    let activeBtnId=$(page).attr("id");
+    updateChevronState(activeBtnId);  
+}
+
+function getCurrentBtn(paginationClass){
+    // Retrieves the page button with active status (currently displaying that number page of results) 
+    // paginationClass distinguishes the sets of buttons being dealth with.
+    let currentBtnId;
+    let pageBtns=$('.pagination'+paginationClass).children().each(function(){
+        if($(this).hasClass('active')){
+            currentBtnId=$(this).attr('id');
+        }
         return currentBtnId;
-    }
+    });
+    return currentBtnId;
+}
 
-    function prevPage(chevron) {
-        let isTopPicks=$(chevron).parent().hasClass('top-picks');
-        let isNewRelease=$(chevron).parent().hasClass('new-releases');
-        /* if chevron btn enabled allow prev function to be carried out */
-        if (!$(chevron).hasClass("disabled") ){
-            let currentBtnId, prevBtnId;
+function prevPage(chevron) {
+    let isTopPicks=$(chevron).parent().hasClass('top-picks');
+    let isNewRelease=$(chevron).parent().hasClass('new-releases');
+    let isGenre=$(chevron).parent().hasClass('genre-picks');
+    /* if chevron btn enabled allow prev function to be carried out */
+    if (!$(chevron).hasClass("disabled") ){
+        let currentBtnId, prevBtnId;
 
-            if (isTopPicks){
-                currentBtnId=getCurrentBtn('.top-picks');
-                // Extracts number from page button Id and decrements by 1 to establish previous page.
-                prevBtnId='tp-page-btn'+(String(currentBtnId).match(/\d+/)-1 ); 
-            }
-            if (isNewRelease){
-                currentBtnId=getCurrentBtn('.new-releases');
-                prevBtnId='nr-page-btn'+(String(currentBtnId).match(/\d+/)-1 );
-            }
-            $('#'+currentBtnId).removeClass('active');
-            $('#'+prevBtnId).addClass('active');
-            /* Change page table showing */
-            getPage('#'+prevBtnId);
-            updateChevronState(prevBtnId); 
+        if (isTopPicks){
+            currentBtnId=getCurrentBtn('.top-picks');
+            // Extracts number from page button Id and decrements by 1 to establish previous page.
+            prevBtnId='tp-page-btn'+(String(currentBtnId).match(/\d+/)-1 ); 
         }
-    }
-
-    function nextPage(chevron) {
-        let isTopPicks=$(chevron).parent().hasClass('top-picks');
-        let isNewRelease=$(chevron).parent().hasClass('new-releases');
-        /* if chevron btn enabled allow next function to be carried out */
-        if (!$(chevron).hasClass("disabled")){
-            let currentBtnId, nextBtnId;
-            if (isTopPicks){
-                currentBtnId=getCurrentBtn('.top-picks');
-                // Extracts number from page button Id and decrements by 1 to establish previous page.
-                nextBtnId='tp-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/)) ); 
-            }
-            if (isNewRelease){
-                currentBtnId=getCurrentBtn('.new-releases');
-                nextBtnId='nr-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/) ) );
-            }
-            console.log('nextBtnId is '+nextBtnId)
-            $('#'+currentBtnId).removeClass('active');
-            $('#'+nextBtnId).addClass('active');
-            /* Change page table showing */
-            getPage('#'+nextBtnId);
-            updateChevronState(nextBtnId); 
+        if (isNewRelease){
+            currentBtnId=getCurrentBtn('.new-releases');
+            prevBtnId='nr-page-btn'+(String(currentBtnId).match(/\d+/)-1 );
         }
+        if (isGenre){
+            currentBtnId=getCurrentBtn('.genre-picks');
+            prevBtnId='gen-page-btn'+(String(currentBtnId).match(/\d+/)-1 );
+        }
+        $('#'+currentBtnId).removeClass('active');
+        $('#'+prevBtnId).addClass('active');
+        /* Change page table showing */
+        getPage('#'+prevBtnId);
+        updateChevronState(prevBtnId); 
     }
+}
+
+function nextPage(chevron) {
+    let isTopPicks=$(chevron).parent().hasClass('top-picks');
+    let isNewRelease=$(chevron).parent().hasClass('new-releases');
+    let isGenre=$(chevron).parent().hasClass('genre-picks');
+    /* if chevron btn enabled allow next function to be carried out */
+    if (!$(chevron).hasClass("disabled")){
+        let currentBtnId, nextBtnId;
+        if (isTopPicks){
+            currentBtnId=getCurrentBtn('.top-picks');
+            // Extracts number from page button Id and decrements by 1 to establish previous page.
+            nextBtnId='tp-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/)) ); 
+        }
+        if (isNewRelease){
+            currentBtnId=getCurrentBtn('.new-releases');
+            nextBtnId='nr-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/) ) );
+        }
+        if (isGenre){
+            currentBtnId=getCurrentBtn('.genre-picks');
+            // Extracts number from page button Id and decrements by 1 to establish previous page.
+            nextBtnId='gen-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/)) ); 
+        }
+        console.log('nextBtnId is '+nextBtnId)
+        $('#'+currentBtnId).removeClass('active');
+        $('#'+nextBtnId).addClass('active');
+        /* Change page table showing */
+        getPage('#'+nextBtnId);
+        updateChevronState(nextBtnId); 
+    }
+}
+
+function getUserGenre(genre){
+    console.log("getUserGenre accessed")
+    let genreToQuery = $(genre).html();
+    // extract username from Jinja template using regex.
+    let usernamePattern = /^[a-z0-9]+/i;
+    let userToQuery = $('#user-title').html().match(usernamePattern); 
+    userToQuery=userToQuery[0];
+    console.log(userToQuery)
+    console.log(genreToQuery)
+    $.getJSON($SCRIPT_ROOT + '/user_genre', 
+    { genre: genreToQuery,
+        username: userToQuery
+    },
+    function(data) {
+        let r = data.result;
+        console.log("retrieval success")
+        r=JSON.parse(r);
+        $('#genre-results-area h3').remove();
+        $('#user-genre-picks').remove();
+        //$('#user-genre-picks').empty();
+        let pageCounter=0;
+        for (page in r) {pageCounter++;}
+        console.log('pageCounter is '+pageCounter)
+        if (pageCounter>0){
+            $('#genre-results-area').html(`<h3>`+userToQuery+`'s `+genreToQuery+` Recommendations</h3>`);
+            $('#genre-results-area').append(`<ul class="pagination genre-picks">
+                <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li></ul>`);
+                for(let page=1; page<=pageCounter; page++){
+                    if (page ==1){
+                        $('.pagination.genre-picks').append(`<li id="gen-page-btn`+page+`" class="active page-btn" onclick="goToPage(this)"></li>`);
+                    } else {
+                        $('.pagination.genre-picks').append(`<li id="gen-page-btn`+page+`" class="page-btn" onclick="goToPage(this)"></li>`);
+                    }
+                    $('#gen-page-btn'+page).append(`<a href="#gen-page-`+page+`.genre-picks">`+page+`</a>`);
+                }
+                $('.pagination.genre-picks').append(`<li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>`);
+            let genBtnCount=$('.genre-picks > .page-btn').length;
+            if (genBtnCount==1){ 
+                $(".genre-picks .left-chev").hide();
+                $(".genre-picks .right-chev").hide();
+            }
+            
+            $('#genre-results-area').append(`<div id="user-genre-picks"></div>`);
+            let filmCounter=1;
+            pageCounter=1;
+            //for (let page=1;page<=r.length;page++){
+            for (page of r){
+                $('#user-genre-picks').append(`<div id="gen-page-`+pageCounter+`" class="film-card-container genre-picks">
+                <div class="table">`);
+                
+                for (film of page){
+                    let rating;
+                    // Find rating inside of array and set as variable to place in table row.
+                    for(index of film.ratings){
+                        for(property in index){
+                            if (property=="rating")
+                                rating=index[property];
+                        }
+                    }
+                    $('#gen-page-'+pageCounter+' .table').append(`<a class="table-row film-card" href="">
+                        <div class="table-cell rank">`+filmCounter+`</div>
+                        <div class="table-cell title">`+film.title+`</div>
+                        <div class="table-cell year">`+film.year+`</div>
+                        <div class="table-cell rating">`+rating+`</div>    
+                    </a>`);
+                    filmCounter+=1;
+                }
+                pageCounter++;
+                $('#genre-results-area').append(`</div></div>`);
+                }
+            } else {
+                $('#genre-results-area').html(`<p>`+userToQuery+` has no films in this genre.</p>`);
+            }
+        }
+    );
+}
 
 // films.html
 
