@@ -86,7 +86,7 @@ def view_user():
     login_collection = mongo.db.login
     login_query = login_collection.find_one({'username':username})
     if login_query:
-        films_per_page=10        
+        films_per_page=2       
         top_picks=paginate_query(get_user_films(username), films_per_page)
         new_releases=paginate_query(get_new_releases(username), films_per_page)
         
@@ -96,6 +96,20 @@ def view_user():
     else:
         flash("This user doesn't exist.",'error')
     return render_template('userview.html')
+
+@app.route('/user_genre', methods=['GET'])
+def user_genre():   
+    genre=request.args.get('genre', '' ,type=str)
+    username=request.args.get('username', '' ,type=str)
+    print('genre is '+genre)
+    print('username is '+username)
+    user_genre_results=paginate_query(get_user_genrefilms(username, genre), 2)
+    num_pages= len(user_genre_results)
+    genre_dict=dumps(user_genre_results)
+    print(genre_dict)
+
+    return jsonify(result=genre_dict)
+    
 
 def paginate_query(query, items_per_page):
     paginated_list=[]
@@ -139,6 +153,13 @@ def get_user_films(username):
     user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':username}}})
     user_films=list(user_films.sort('ratings.rating',-1))
     return user_films
+
+def get_user_genrefilms(username, genre):
+    # Gets films belonging to specific genre for userview page
+    film_collection=mongo.db.films
+    user_genre_films = film_collection.find({'$and': [{'genre': {'$elemMatch': {"$in": [genre] } } }, {'ratings': {'$elemMatch': { 'username': username } } } ] } )
+    user_genre_films=list(user_genre_films.sort('ratings.rating',-1))
+    return user_genre_films
 
 def get_new_releases(username):
     film_collection=mongo.db.films
