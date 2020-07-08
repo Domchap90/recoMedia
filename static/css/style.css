@@ -14,6 +14,9 @@ p, li {
     color: #000;
     font-size: 1.1rem;
 }
+.input-field{
+    width: inherit;
+}
 label {
     font-size: 1.2rem;
     color: #4d4d4d;
@@ -24,6 +27,7 @@ form button {
     padding: 4px 12px;
 }
 .btn.form-submit{
+    align-self: center;
     background-color: #edeae5;
     color: black;
     font-family: "Oxygen", sans-serif;
@@ -469,6 +473,41 @@ form .row span {
     background-color: beige;
     font-size: 20px;
 }
+#search-box-container{
+    width: 50% !important;
+    margin: auto;
+    border: 1px solid black;
+}
+#search-form-container{
+    display: flex !important;
+    width: 100%;
+    max-height: 110px;
+    padding: 10px;
+    justify-content: space-around;
+}
+#search-form-container .dropdown-content{
+    position: relative;
+}
+#search-title-box{
+    display: block !important;
+    width: 300px !important;
+}
+#search-year-box{
+    display: block !important;
+    width: 170px !important;
+}
+.dropdown-content li>span {
+    color: black;
+}
+#search-err-msg{
+    display: flex;
+    justify-content: center;
+    align-items: start;
+}
+#search-err-msg p{
+    font-size: 16px !important;
+}
+
 .pagination{
     display: flex;
     justify-content: center;
@@ -477,18 +516,11 @@ form .row span {
     color: #fff;
     background-color: #4d4d4d;
 }
-.film-card-container.top-picks {
+.film-card-container.top-picks, .film-card-container.new-releases, .film-card-container.genre-picks{
     display: none;
 }
 
-#tp-page-1.top-picks  {
-    display: grid;
-}
-.film-card-container.new-releases{
-    display: none;
-}
-
-#nr-page-1.new-releases  {
+#tp-page-1.top-picks, #nr-page-1.new-releases, #gen-page-1.genre-picks{
     display: grid;
 }
 
