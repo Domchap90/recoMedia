@@ -21,11 +21,28 @@
 
 <p>{{username}} has rated {{ film_count }} films</p>
 
+<h3>Search Film</h3>
+<div id="search-box-container">
+    <div id="search-form-container">
+        <div id="search-title-box" class="input-field">
+            <label for="search-film-title">Title</label>
+            <input id="search-film-title" type="text" name="search-film-title" autocomplete="off" class="validate autocomplete" onkeyup="getSuggestions(this)" onchange="getYears(this)" /required>
+        </div>
+        <div id="search-year-box" class="input-field">
+            <select id="Year" name="Year" required>            
+            </select>
+            <label for="Year" class="validate">Year</label>
+        </div>
+        <button class="btn form-submit" type="submit" onclick="showFilmInCarousel()">Search Film</button>
+    </div>
+    <div id="search-err-msg"></div>
+</div>
+
 <div class="carousel-container">
 	<div class="prev hide-on-med-and-down">
 		<</div> <div class="carousel carousel-slider center" data-indicators="false">
 			{% for film in films %}
-			<div class="carousel-item center">
+			<div id="{{loop.index-1}}-{{film.imdbID}}" class="carousel-item center">
 				<div class="arrow-pic-container">
 					<div class="prev hide-on-large-and-up">
 						<</div> <div class="poster-container">

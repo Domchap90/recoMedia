@@ -1,10 +1,11 @@
 var elems;
+var elemCarousel;
 var instances;
+var instanceCarousel;
 var currYear = (new Date()).getFullYear();    
 
 $(document).ready(function(){
-    //$('select').formSelect();
-    M.updateTextFields();
+    //M.updateTextFields();
     elems = document.querySelectorAll('select');
     $('#years').on('change', function() {
         console.log('change registered.')
@@ -12,6 +13,7 @@ $(document).ready(function(){
         let year=$(this).val();
         getFilm(year);
     });
+    
     $('.carousel.carousel-slider').carousel({
         fullWidth: true,
     });        
@@ -57,10 +59,11 @@ function checkPasswordsMatch(input) {
         $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
             console.log('getSuggestions entered.')
             /**** clear previous suggestions ****/
-            var title_object = {};
+            let title_object = {};
             /**** autocomplete film suggestions ****/
             for (film of rawdata.Search){
-                title_object[film.Title] = null;
+                console.log(film.Title)
+                title_object[film.Title] = "";
             }
 
             $('input.autocomplete').autocomplete({
@@ -125,7 +128,7 @@ function checkPasswordsMatch(input) {
     function createElem(parentNode, film_id) {
         $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
             console.log(parentNode)
-            $("#"+parentNode).empty();
+            //$("#"+parentNode).empty();
             let option=document.createElement("OPTION");
             // Create a "class" attribute
             let att = document.createAttribute("value");       
@@ -135,7 +138,8 @@ function checkPasswordsMatch(input) {
             //option.attr({value: rawdata[parentNode], disabled: "disabled", selected: "selected");
             console.log(parentNode+' is '+option.value)
             option.innerHTML=rawdata[parentNode];
-            document.getElementById(parentNode).appendChild(option);
+            //document.getElementById(parentNode).appendChild(option);
+            $('#'+parentNode).append(`<option value="`+option.value+`" selected>`+option.value+`</option>`);
         });
     }
     function confirmDelete(film){
@@ -148,6 +152,70 @@ function checkPasswordsMatch(input) {
     }
 
 //  Userview 
+
+function getYears(filmname){
+    console.log("getYears entered.");
+    //$('select').formSelect();
+    $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
+            /**** clear previous search data ****/
+            $("#search-err-msg p").remove();
+            $("#Year").empty();
+            $('#Year').html(`<option value="" disabled selected>Choose which year</option>`);
+            var year_object = {};
+	        //var arrayNoDuplicatesID = [];
+	        let id = 0;
+	        for ( film of rawdata.Search){
+	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && film.Type==='movie'){
+	                console.log("condition accessed.")
+                    year_object[film.Year] = null;
+                    id++;
+                    createElem("Year", film.imdbID);
+                    $("#Year").append(`<option value="`+film.Year+`" selected>`+film.Year+`</option>`);
+                }
+            }
+            if (id===0){
+                $("#search-err-msg").append("<p>Unfortunately this film doesn't exist in our database.</p>");
+            }
+            $('select').not('.disabled').formSelect();
+        });
+    }
+
+function showFilmInCarousel() {
+    $("#search-err-msg p").remove();
+    let filmTitle=$('#search-film-title').val();
+    let filmYear=$('#Year').val();
+    if (filmYear==null){
+        $("#search-err-msg").append(`<p class="error">Unfortunately this film doesn't exist in our database.</p>`);
+    }
+    let elemCarousel = document.querySelector('.carousel');
+    let instanceCarousel = M.Carousel.getInstance(elemCarousel);
+    console.log('filmTitle is '+filmTitle+', filmYear is '+filmYear )
+    $.get('https://www.omdbapi.com/?s='+filmTitle+'&apikey=61e49492',function(rawdata){
+        let filmID=0;
+        // Obtain film ID of searched film.
+        for (film of rawdata.Search){
+            if (filmTitle.toLowerCase()==film['Title'].toLowerCase() && filmYear==film['Year']){
+                filmID=film['imdbID'];
+            }
+        }
+
+        // Find number of carousel-slide by finding the carousel-item ID matching with filmID above. 
+        let carouselChildren=$('.carousel-slider').children();
+        let carouselItemIdPattern = /^[0-9]+/;
+        let filmSlide;
+        for (child of carouselChildren){
+            if ((child.id).match(filmID)){
+                filmSlide=child.id.match(carouselItemIdPattern);
+            }
+        }
+        console.log('filmSlide is '+filmSlide);
+        if (filmSlide== undefined){
+            $("#search-err-msg").append(`<p class="error">This user hasn't rated this film.</p>`);
+        } else{
+            instanceCarousel.set(filmSlide);
+        }
+    });
+}
 
 function getPage(pageButton){
     if ($(pageButton).parent().hasClass('top-picks')){
