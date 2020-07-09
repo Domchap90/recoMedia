@@ -33,12 +33,13 @@ def home():
 def make_session_permanent():
     # Keeps user logged in for a maximum of 5 mins.
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=5)
+    app.permanent_session_lifetime = timedelta(minutes=1)
 
 @socketio.on('disconnect')
 def disconnect_user():
     session.clear()
     session.pop('username', None)  #amend these.
+    
 
 @app.route('/username_search_options', methods=['GET'])
 def username_search_options():
@@ -70,6 +71,7 @@ def login():
     if login_query:
         if password==login_query['password']:
             session['username']=username
+            session['logged_in'] = True
             return redirect(url_for('userprofile') )
     
     flash("The password or username you entered is incorrect. Please try again.", 'error')
@@ -79,6 +81,7 @@ def login():
 @app.route('/logout')
 def logout(): 
     session.clear()
+    session['logged_in'] = False
     return redirect(url_for('home'))
 
 @app.route('/view_user', methods=['POST','GET'])
@@ -147,16 +150,21 @@ def insert_user():
     else:
         session['username']=username
         login_collection.insert_one({'username':session['username'], 'password': password })
+        session['logged_in'] = True
         return redirect(url_for('userprofile') )
 
     return redirect(url_for('home'))
 
 @app.route('/userprofile')
 def userprofile():
-    user_films=get_user_films(session['username'])
-    films_per_page=10        
-    top_picks=paginate_query( get_user_films(session['username']), films_per_page)
-    return render_template('userprofile.html', username=session['username'], films=user_films, top_picks=top_picks, films_per_page=films_per_page)
+    if session.get('logged_in')==True:
+        user_films=get_user_films(session['username'])
+        films_per_page=10        
+        top_picks=paginate_query( get_user_films(session['username']), films_per_page)
+        return render_template('userprofile.html', username=session['username'], films=user_films, top_picks=top_picks, films_per_page=films_per_page)
+    else:
+        flash("Your login session timed out. Please login again to continue.", 'error')
+        return redirect(url_for('login_page') )
 
 def get_user_films(username):
     film_collection=mongo.db.films
@@ -189,32 +197,38 @@ def insert_rating(username):
     genre=genre.split(', ')
     print('Genre is '+str(genre))
     print('poster is '+poster)
-    film_collection=mongo.db.films
-    if film_collection.find_one({'imdbID':f.get('imdbID'), 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
-        """ updates rating from DB where film and this user's rating already exist """
-        film_collection.update( 
-            {'imdbID':f.get('imdbID'), 'ratings.username':session['username'] },
-            {'$set': {'ratings.$.rating':int(f.get('rating')), 'ratings.$.review':form['review']} }
-            )
-        print("Rating updated for this film.")
-    elif film_collection.find_one({'imdbID':f.get('imdbID')}):
-        """ inserts rating into pre-existing film which this user hasn't rated yet """
-        film_collection.update( 
-            {'imdbID':f.get('imdbID') },
-            {'$push': { 'ratings' : {'username': session['username'] ,'rating':int(f.get('rating')), 'review':form['review']} }}
-            )
-        print("Rating added for this film. (option 2)")
-    else:
-        """ film not currently listed in db """
-        film_collection.insert_one({
-            'title': format_title(form['film_title']),'imdbID':form['imdbID'],'year':int(f.get('Year')),'director':f.get('Director'), 
-            'cast':f.get('Actors'), 'runtime':f.get('Runtime'), 'genre': genre, 'poster': poster,'ratings':[{'username':session['username'],
-            'rating':int(f.get('rating')), 'review':form['review'] }]
-            }) 
-        print("Rating + Film inserted. (option 3)")
+    if session.get('logged_in')==True:
+        film_collection=mongo.db.films
+        if film_collection.find_one({'imdbID':f.get('imdbID'), 'ratings':{'$elemMatch':{ 'username':session['username']}}}):
+            """ updates rating from DB where film and this user's rating already exist """
+            film_collection.update( 
+                {'imdbID':f.get('imdbID'), 'ratings.username':session['username'] },
+                {'$set': {'ratings.$.rating':int(f.get('rating')), 'ratings.$.review':form['review']} }
+                )
+            print("Rating updated for this film.")
+        elif film_collection.find_one({'imdbID':f.get('imdbID')}):
+            """ inserts rating into pre-existing film which this user hasn't rated yet """
+            film_collection.update( 
+                {'imdbID':f.get('imdbID') },
+                {'$push': { 'ratings' : {'username': session['username'] ,'rating':int(f.get('rating')), 'review':form['review']} }}
+                )
+            print("Rating added for this film. (option 2)")
+        else:
+            """ film not currently listed in db """
+            film_collection.insert_one({
+                'title': format_title(form['film_title']),'imdbID':form['imdbID'],'year':int(f.get('Year')),'director':f.get('Director'), 
+                'cast':f.get('Actors'), 'runtime':f.get('Runtime'), 'genre': genre, 'poster': poster,'ratings':[{'username':session['username'],
+                'rating':int(f.get('rating')), 'review':form['review'] }]
+                }) 
+            print("Rating + Film inserted. (option 3)")
 
-    user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
-    return redirect(url_for('userprofile',username=username, films=user_films))
+        user_films = film_collection.find({'ratings':{'$elemMatch':{ 'username':session['username']}}})
+        return redirect(url_for('userprofile',username=username, films=user_films))
+
+    else:
+        flash("Your login session timed out. Please login again to continue.", 'error')
+        return redirect(url_for('login_page') )
+
 
 @app.route('/delete_rating/<filmID>')
 def delete_rating(filmID):
@@ -236,17 +250,23 @@ def delete_rating(filmID):
 
     for film in film_to_delete:
         ratings_count=film['ratingsCount']
-    
-    # if film has only 1 rating, delete entire film document
-    if ratings_count==1:
-        film_collection.delete_one({'imdbID':filmID})
-    # if more than 1 rating for film, simply delete users rating.
+    # Check if user still logged in.
+    print("session.get('logged_in') = "+str(session.get('logged_in')))
+    if session.get('logged_in')==True:
+        # if film has only 1 rating, delete entire film document
+        if ratings_count==1:
+            film_collection.delete_one({'imdbID':filmID})
+        # if more than 1 rating for film, simply delete users rating.
+        else:
+            film_collection.update_one(
+                {'imdbID': filmID},
+                {'$pull': {'ratings': {'username': session['username']} } } 
+            )
+        return redirect(url_for('userprofile') )
     else:
-        film_collection.update_one(
-            {'imdbID': filmID},
-            {'$pull': {'ratings': {'username': session['username']} } } 
-        )
-    return redirect(url_for('userprofile') )
+        flash("Your login session timed out. Please login again to continue.", 'error')
+        return redirect(url_for('login_page') )
+
 
 @app.route('/show_films/', methods=['POST','GET'])
 def show_films():
