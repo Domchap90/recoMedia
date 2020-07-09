@@ -41,16 +41,27 @@ $(document).ready(function(){
 });
 
 // Index.html
+
+function checkUsername(username){
+    $("#username-err").remove();
+    console.log('checkUsername accessed.')
+    console.log(/[^A-z0-9]/.test(username.value))
+    if( /[^A-z0-9]/.test(username.value) ){
+        $("div #err-msg").append(`<p class="error" id="username-err">Username must be alphanumeric with no spaces.</p>`);
+    }
+}
+
 function checkPasswordsMatch(input) {
     console.log('checker function accessed.')
+    $("#pw-match-err").remove();
     if ( $('#c_password').val() != $('#password').val() && $('#c_password').val().length>0 ) {
         console.log('passwords not equal accessed.\n'+$('#password').val()+' , '+input.value)
-        $("div #err-msg").html("Password Must be Matching.");
+        $("div #err-msg").append(`<p class="error" id="pw-match-err">Password Must be Matching.</p>`);
         $("#err-msg").css("color","red");
     } else {
         // input is valid -- reset the error message
         console.log('passwords equal accessed.\n'+$('#password').val()+' , '+input.value)
-        $("#err-msg").html("<p></p>");
+        $("#pw-match-err").remove();
     }
 }
 
@@ -187,8 +198,6 @@ function showFilmInCarousel() {
     if (filmYear==null){
         $("#search-err-msg").append(`<p class="error">Unfortunately this film doesn't exist in our database.</p>`);
     }
-    let elemCarousel = document.querySelector('.carousel');
-    let instanceCarousel = M.Carousel.getInstance(elemCarousel);
     console.log('filmTitle is '+filmTitle+', filmYear is '+filmYear )
     $.get('https://www.omdbapi.com/?s='+filmTitle+'&apikey=61e49492',function(rawdata){
         let filmID=0;
@@ -198,23 +207,30 @@ function showFilmInCarousel() {
                 filmID=film['imdbID'];
             }
         }
-
-        // Find number of carousel-slide by finding the carousel-item ID matching with filmID above. 
-        let carouselChildren=$('.carousel-slider').children();
-        let carouselItemIdPattern = /^[0-9]+/;
-        let filmSlide;
-        for (child of carouselChildren){
-            if ((child.id).match(filmID)){
-                filmSlide=child.id.match(carouselItemIdPattern);
-            }
-        }
-        console.log('filmSlide is '+filmSlide);
-        if (filmSlide== undefined){
-            $("#search-err-msg").append(`<p class="error">This user hasn't rated this film.</p>`);
-        } else{
-            instanceCarousel.set(filmSlide);
-        }
+        goToFilmSlide(filmID);
+        
     });
+}
+
+function goToFilmSlide(filmID){
+    let elemCarousel = document.querySelector('.carousel');
+    let instanceCarousel = M.Carousel.getInstance(elemCarousel);
+    console.log(filmID)
+    // Find number of carousel-slide by finding the carousel-item ID matching with filmID above. 
+    let carouselChildren=$('.carousel-slider').children();
+    let carouselItemIdPattern = /^[0-9]+/;
+    let filmSlide;
+    for (child of carouselChildren){
+        if ((child.id).match(filmID)){
+            filmSlide=child.id.match(carouselItemIdPattern);
+        }
+    }
+    console.log('filmSlide is '+filmSlide);
+    if (filmSlide== undefined){
+        $("#search-err-msg").append(`<p class="error">This user hasn't rated this film.</p>`);
+    } else{
+        instanceCarousel.set(filmSlide);
+    }
 }
 
 function getPage(pageButton){
@@ -420,7 +436,7 @@ function getUserGenre(genre){
                                 rating=index[property];
                         }
                     }
-                    $('#gen-page-'+pageCounter+' .table').append(`<a class="table-row film-card" href="">
+                    $('#gen-page-'+pageCounter+' .table').append(`<a class="table-row film-card" href="#userview-carousel" onclick="goToFilmSlide('`+film.imdbID+`')">
                         <div class="table-cell rank">`+filmCounter+`</div>
                         <div class="table-cell title">`+film.title+`</div>
                         <div class="table-cell year">`+film.year+`</div>
