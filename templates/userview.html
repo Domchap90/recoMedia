@@ -38,14 +38,14 @@
     <div id="search-err-msg"></div>
 </div>
 
-<div class="carousel-container">
+<div class="carousel-container" id="userview-carousel">
 	<div class="prev hide-on-med-and-down">
-		<</div> <div class="carousel carousel-slider center" data-indicators="false">
+		&lt;</div> <div class="carousel carousel-slider center" data-indicators="false">
 			{% for film in films %}
 			<div id="{{loop.index-1}}-{{film.imdbID}}" class="carousel-item center">
 				<div class="arrow-pic-container">
 					<div class="prev hide-on-large-and-up">
-						<</div> <div class="poster-container">
+						&lt;</div> <div class="poster-container">
 							<img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
                     {% for rate in film.ratings %}
                     {% if rate.username==username %}
@@ -55,7 +55,7 @@
 								</div>
 							</div>
 					</div>
-					<div class="next hide-on-large-and-up">></div>
+					<div class="next hide-on-large-and-up">&gt;</div>
 				</div>
 				<div class="table-container">
 					<table>
@@ -86,7 +86,7 @@
 			</div>
 			{% endfor %}
 	</div>
-	<div class="next hide-on-med-and-down">></div>
+	<div class="next hide-on-med-and-down">&gt;</div>
 </div>
 
 <h3>{{username}}'s' Top Picks</h3>
@@ -109,7 +109,7 @@
 <div id="tp-page-{{loop.index}}" class="film-card-container top-picks">
 <div class="table">
 {% for film in page %}
-    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+    <a class="table-row film-card" href="#userview-carousel" onclick="goToFilmSlide('{{film.imdbID}}')">
         <div class="table-cell rank">{{ loop.index + (pages_counted|length*films_per_page) }}</div>
         <div class="table-cell title">{{film.title}}</div>
         <div class="table-cell year">{{film.year}}</div>
@@ -141,7 +141,7 @@
 <div id="nr-page-{{loop.index}}" class="film-card-container new-releases">
 <div class="table">
 {% for film in page %}
-    <a class="table-row film-card" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+    <a class="table-row film-card" href="#userview-carousel" onclick="goToFilmSlide('{{film.imdbID}}')">
         <div class="table-cell rank">{{ loop.index + (nr_pages_counted|length*films_per_page) }}</div>
         <div class="table-cell title">{{film.title}}</div>
         <div class="table-cell year">{{film.year}}</div>
