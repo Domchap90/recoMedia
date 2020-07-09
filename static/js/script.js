@@ -7,7 +7,7 @@ var currYear = (new Date()).getFullYear();
 $(document).ready(function(){
     //M.updateTextFields();
     elems = document.querySelectorAll('select');
-    $('#years').on('change', function() {
+    $('#Year').on('change', function() {
         console.log('change registered.')
         console.log($(this).val())
         let year=$(this).val();
@@ -108,8 +108,6 @@ function checkPasswordsMatch(input) {
             
              $('#film-display > div').on('click', function() {
                 console.log('click registered.')
-                //console.log($(this).id)
-                console.log('id is '+this.id)
                 getFilm(this.id);
             });
 	    });
@@ -118,9 +116,7 @@ function checkPasswordsMatch(input) {
     function getFilm(chosen_id) {
         console.log('getFilm accessed.')
         let film_title=$('#film_title').val();
-        $('select').formSelect();
 	    $.get('https://www.omdbapi.com/?i='+chosen_id+'&apikey=61e49492',function(rawdata){
-            //$("#film-display").html("");
             let arrayNoDuplicatesID=[];
             var rawstring=JSON.stringify(rawdata);
             omdb_data = JSON.parse(rawstring)
@@ -131,7 +127,8 @@ function checkPasswordsMatch(input) {
                     let fields=["imdbID","Year","Director","Actors","Runtime"];
                     for ( f of fields)
                         createElem(f, chosen_id);
-                        arrayNoDuplicatesID.push(film.imdbID);
+                    arrayNoDuplicatesID.push(film.imdbID);
+                    $('select').formSelect();
                 }
 
         });
@@ -161,6 +158,23 @@ function checkPasswordsMatch(input) {
         $('#modal1').modal('open');
         $('#del-btn').attr("href", $SCRIPT_ROOT+'/delete_rating/'+filmId); 
     }
+
+function checkRating(){
+    $('#err-msg').empty();
+    let runtime= $('#Runtime').val();
+    let rating= $('#rating').val();
+    let review= $('#review').val();
+    console.log('runtime = '+runtime+', rating = '+rating+', review = '+review)
+    if (runtime===null){
+        $('#err-msg').append('<p class="error">A film has not yet been selected.</p>');
+    }
+    if (rating===null){
+        $('#err-msg').append('<p class="error">A rating remains to be selected for this film.</p>');
+    }
+    if (review===""){
+        $('#err-msg').append('<p class="error">The review field is empty.</p>');
+    }
+}
 
 //  Userview 
 
