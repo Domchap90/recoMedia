@@ -58,6 +58,7 @@ def username_search_options():
 
 @app.route('/login_page')
 def login_page(): 
+    '''validation if already logged in '''
     return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
@@ -127,12 +128,21 @@ def insert_user():
     username=request.form.get('username')
     password=request.form.get('password')
     c_password=request.form.get('c_password')
+    error_exists=False
     # Establish if username entered doesn't already exist within the database.
     if login_collection.find_one({'username':username}):
         flash("Username already exists", 'error')
-        return redirect(url_for('home'))
-    elif password!=c_password:
+        error_exists=True
+    # Ensures username is alphanumeric 
+    if re.search("[^a-zA-Z0-9]", username):
+        flash("Username must be alphanumeric with no spaces.", 'error')
+        error_exists=True
+    # Ensures passwords match
+    if password!=c_password:
         flash("Passwords do not match", 'error')
+        error_exists=True
+
+    if error_exists:
         return redirect(url_for('home'))
     else:
         session['username']=username
