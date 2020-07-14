@@ -22,71 +22,134 @@
         <a href="#!" class="brand-logo center">
             <h1>RecoMovie</h1>
         </a>
-        <ul class="right hide-on-med-and-down" id="right-nav">
-        {% if 'username' in session %}
-            <li><a href="{{url_for('userprofile')}}">Home</a></li>
-        {% else %}
-            <li><a href="{{url_for('home')}}">Home</a></li>
-        {% endif %}
-            <li><a id="dropdown-users" class='dropdown-trigger' href='' data-target='dropdown'>Users</a>
+        <ul class="right right-nav hide-on-med-and-down">
+            <li class="{% block home %}{% endblock %}">
+            {% if 'username' in session %}
+                <a href="{{url_for('userprofile')}}">Home</a>
+            {% else %}
+                <a href="{{url_for('home')}}">Home</a>
+            {% endif %}
+            </li>
+            <li class="{% block users %}{% endblock %}"><a id="dropdown-users" class='dropdown-trigger' href='' data-target='dropdown'>Users</a>
                 <ul id='dropdown' class='dropdown-content'>
                     <li id="search-bar-container">
-                        <form action="{{url_for('view_user' ) }}" method="POST">
+                        <form action="{{url_for('view_user') }}" autocomplete="off" method="POST">
                             <input type="text" name="username" placeholder="Look up user" id="user-search" onkeyup="filterUsers(this)">
-                            <button id="user-search-btn" type="submit"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
+                            <button class="user-search-btn" type="submit" onclick="activePage(this)"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
                         </form>
                     </li>
                     <li id="suggestion-description">User profiles matching your search</li>
                 </ul>
             </li>
             {% if 'username' in session %}
-            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+            <li class="{% block logout %}{% endblock %}" onclick="activePage(this)"><a href="{{ url_for('logout') }}">Log out</a></li>
             {% else %}
-            <li><a href="{{ url_for('login_page') }}">Login</a></li>
+            <li class="{% block login %}{% endblock %}" onclick="activePage(this)"><a href="{{ url_for('login_page') }}">Login</a></li>
             {% endif %}
-            <li class="active"><a href="{{url_for('show_films')}}">Films</a></li>
+            <li class="{% block films %}{% endblock %}" onclick="activePage(this)"><a href="{{url_for('show_films')}}">Films</a></li>
+        </ul>
+        <ul class="right right-nav hide-on-large-and-up">
+            <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
         </ul>
     </div>
 </nav>
+
+<div id="slide-out" class="sidenav">
+    <div class="sidenav-close"><a href=""><span class="material-icons">close</span></a></div>
+    <ul>
+    {% if 'username' in session %}
+    <li><a href="{{url_for('userprofile')}}">Home</a></li>
+    {% else %}
+    <li><a href="{{url_for('home')}}">Home</a></li>
+    {% endif %}
+    <li><a id="side-dropdown-users" class='dropdown-trigger' href='' data-target='side-dropdown'>Users</a>
+        <ul id='side-dropdown' class='dropdown-content'>
+            <li id="side-search-bar-container">
+                <form action="{{url_for('view_user' ) }}" autocomplete="off" method="POST">
+                    <input type="text" name="username" placeholder="Look up user" id="side-user-search" onkeyup="filterUsers(this)">
+                    <button class="user-search-btn" type="submit"><img src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"></button>
+                </form>
+            </li>
+            <li id="side-suggestion-description">User profiles matching your search</li>
+        </ul>
+    </li>
+    {% if 'username' in session %}
+    <li><a href="{{ url_for('logout') }}">Log out</a></li>
+    {% else %}
+    <li><a href="{{ url_for('login_page') }}">Login</a></li>
+    {% endif %}
+    <li><a href="{{url_for('show_films')}}">Films</a></li>
+    </ul>
+</div>
+  
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block content %}
     {% endblock %}
+    
     <script>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
      $(document).ready(function(){
+        var elemSideNav = document.querySelectorAll('.sidenav');
+        var instanceSideNav = M.Sidenav.init(elemSideNav, {edge:'right'});
         $(".dropdown-trigger").dropdown({
             coverTrigger: false,
             closeOnClick: false
         });
+        // The following refocuses the search bar upon typing the first letter of the suggestion-description.
+        $('#user-search').blur(function() {
+            $('#user-search').focus();
+        });
+        // Similarly for the side nav bar.
+        $('#side-user-search').blur(function() {
+            $('#side-user-search').focus();
+        });
      });
      
-     function filterUsers(userSearch){
-        userEntry=$(userSearch).val();
-        console.log(userEntry)
-        $.getJSON($SCRIPT_ROOT + '/username_search_options', 
-            { searchValue: userEntry },
-            function(data) {
-                $("#suggestion-description").html("User profiles matching your search");
-                let r = data.result;
-                r=JSON.parse(r);
-                if(r.length==0){
-                    $("#suggestion-description").html("No users available from this search")
-                }
-                $(".suggestions").remove();
-                for(i of r){
-                    $("#dropdown").append(`<li class="suggestions" onclick="getSuggestion(this)">`+i['username']+`</li>`);
-                }
-            }); 
-     }
+    
 
-     function getSuggestion(suggestion){
+    function filterUsers(userSearch){
+        userEntry=$(userSearch).val();
+        let searchUserId=$(userSearch).parent().parent().attr("id");
+        if (searchUserId.match(/side/)){
+            console.log('side nav search bar accessed.')
+            suggestUsers("side-suggestion-description", "side-dropdown");
+        } else {
+            console.log('main nav search bar accessed.')
+            suggestUsers("suggestion-description", "dropdown");
+        }
+    }
+
+    function suggestUsers(suggestionDescriptionId, dropdownId){
+        $.getJSON($SCRIPT_ROOT + '/username_search_options', 
+        { searchValue: userEntry },
+        function(data) {
+            $("#"+suggestionDescriptionId).text("User profiles matching your search");
+            let r = data.result;
+            r=JSON.parse(r);
+            if(r.length==0){
+                $("#"+suggestionDescriptionId).text("No users available from this search");
+            }
+            $(".suggestions").remove();
+            for(i of r){
+                $("#"+dropdownId).append(`<li class="suggestions" onclick="getSuggestion(this)">`+i['username']+`</li>`);
+            }
+        }); 
+    }
+
+    function getSuggestion(suggestion){
         // Upon clicking suggestion (dynamically created in filterUsers function) suggestion appears 
         // in input field.
         let s=$(suggestion).text();
-        $('#user-search').val(s);
-     }
+        let parentId=$(suggestion).parent().attr("id");
+        if ( parentId.match(/side/) ){
+            $('#side-user-search').val(s);
+        } else {
+            $('#user-search').val(s);
+        }
+    }
     </script>
 </body>
 </html>
