@@ -573,8 +573,8 @@ td{
     height: auto;
     width: auto;
 }
-form .row span {
-    margin-left: 20px;
+form #password-hint {
+    padding-left: 10px;
 }
 #rating ul.dropdown-content{
     width: 40px !important;
