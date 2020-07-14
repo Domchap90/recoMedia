@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block films %}active{% endblock %}
 {% block content %}
 
 <h2 class="center">{{film.title}}</h2>
@@ -14,7 +15,7 @@
     </div>
 </div>
 <div class="imdb-link">
-<a href="http://www.imdb.com/title/{{film.imdbID}}/" target="_blank" class="center">Visit the IMDB page: http://www.imdb.com/title/{{film.imdbID}}/ </a>
+<a href="http://www.imdb.com/title/{{film.imdbID}}/" target="_blank" class="center"><img src="{{ url_for('static', filename='images/imdb-logo.png') }}" alt="imdb-logo">Visit the official IMDB page here</a>
 </div>
 <div class="table-container">
 	<table>
@@ -36,7 +37,12 @@
 		</tr>
 	</table>
 </div>
-<h3>Reviews</h3>
+
+<div class="title-area">
+    <h3>Reviews</h3>
+</div>
+
+<div class="reviews-container">
 
 {% for rating in film.ratings %}
 
@@ -45,12 +51,20 @@
 {% else %}
 <div class="user-review-container row review-color-B" >
 {% endif %}
-    <div class="user-rating col s2">{{rating.rating}}</div>
+    <div class="user-rating col s2">
+        <div class="rating-overlay">
+            <div class="rating-container">
+                {{rating.rating}}
+            </div>
+        </div>
+    </div>
     <div class="user-review col s10">
         <p>{{rating.review}}</p>
         <span class="username">- {{rating.username}}</span>
     </div>
 </div> 
-
 {% endfor %}
+
+</div>
+
 {% endblock %}
