@@ -5,15 +5,8 @@ var instanceCarousel;
 var currYear = (new Date()).getFullYear();    
 
 $(document).ready(function(){
-    //M.updateTextFields();
     elems = document.querySelectorAll('select');
-    $('#Year').on('change', function() {
-        console.log('change registered.')
-        console.log($(this).val())
-        let year=$(this).val();
-        getFilm(year);
-    });
-    
+    $('.sidenav').sidenav();
     $('.carousel.carousel-slider').carousel({
         fullWidth: true,
     });        
@@ -29,12 +22,12 @@ $(document).ready(function(){
     // GenPageBtnCount initiated in the getUserGenre function (as AJAX btnCount will be 0 on document ready)
     console.log(tpBtnCount)
     console.log(nrBtnCount)
-    // eliminates chevrons where only one page exists within pagination.
-    if (tpBtnCount==1){ 
+    // eliminates chevrons where only one or less pages exists within pagination.
+    if (tpBtnCount<2){ 
         $(".top-picks .left-chev").hide();
         $(".top-picks .right-chev").hide();
     }
-    if (nrBtnCount==1){ 
+    if (nrBtnCount<2){ 
         $(".new-releases .left-chev").hide();
         $(".new-releases .right-chev").hide();
     }
@@ -98,7 +91,8 @@ function checkPasswordsMatch(input) {
 	                console.log("condition accessed.")
                     year_object[film.Year] = null;
                     id++;
-                    $("#film-display").append(`<div class="film-data" id="`+film.imdbID+`"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
+                    $("#film-display").append(`<div class="film-data" id="`+film.imdbID+`"><img src="`+film.Poster+`"/>
+                    <ul><li>`+film.Title+`</li><li>`+film.Year+`</li></ul></div>`);
                     arrayNoDuplicatesID.push(film.imdbID);
                     }
             }
@@ -123,10 +117,11 @@ function checkPasswordsMatch(input) {
             console.log('rawstring is ' +rawstring+', Actors = '+rawdata["Actors"]+' Director = '+rawdata["Director"]+' runtime= '+rawdata["Runtime"])           
                 
                 if (arrayNoDuplicatesID.indexOf(rawdata["imdbID"])===-1){
-                        //$("#film-display").html(`<div class="film-data" id="title1"><img src="`+film.Poster+`"/><p>"`+film.Title+`", `+film.Year+`, `+film.imdbID+`</p></div>`);
                     let fields=["imdbID","Year","Director","Actors","Runtime"];
-                    for ( f of fields)
+                    for ( f of fields){
+                        $('#'+f).empty();
                         createElem(f, chosen_id);
+                    }
                     arrayNoDuplicatesID.push(film.imdbID);
                     $('select').formSelect();
                 }
@@ -135,19 +130,15 @@ function checkPasswordsMatch(input) {
     }
     function createElem(parentNode, film_id) {
         $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
-            console.log(parentNode)
-            //$("#"+parentNode).empty();
             let option=document.createElement("OPTION");
             // Create a "class" attribute
             let att = document.createAttribute("value");       
             // Set the value of the class attribute
             att.value = rawdata[parentNode];                           
             option.setAttributeNode(att);                  
-            //option.attr({value: rawdata[parentNode], disabled: "disabled", selected: "selected");
             console.log(parentNode+' is '+option.value)
             option.innerHTML=rawdata[parentNode];
-            //document.getElementById(parentNode).appendChild(option);
-            $('#'+parentNode).append(`<option value="`+option.value+`" selected>`+option.value+`</option>`);
+            document.getElementById(parentNode).appendChild(option);
         });
     }
     function confirmDelete(film){
@@ -180,14 +171,12 @@ function checkRating(){
 
 function getYears(filmname){
     console.log("getYears entered.");
-    //$('select').formSelect();
     $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
             /**** clear previous search data ****/
             $("#search-err-msg p").remove();
             $("#Year").empty();
             $('#Year').html(`<option value="" disabled selected>Choose which year</option>`);
             var year_object = {};
-	        //var arrayNoDuplicatesID = [];
 	        let id = 0;
 	        for ( film of rawdata.Search){
 	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && film.Type==='movie'){
@@ -410,12 +399,11 @@ function getUserGenre(genre){
         r=JSON.parse(r);
         $('#genre-results-area h3').remove();
         $('#user-genre-picks').remove();
-        //$('#user-genre-picks').empty();
         let pageCounter=0;
         for (page in r) {pageCounter++;}
         console.log('pageCounter is '+pageCounter)
         if (pageCounter>0){
-            $('#genre-results-area').html(`<h3>`+userToQuery+`'s `+genreToQuery+` Recommendations</h3>`);
+            $('#genre-results-area').html(`<div class="title-area"><h3>`+userToQuery+`'s `+genreToQuery+` Recommendations</h3></div>`);
             $('#genre-results-area').append(`<ul class="pagination genre-picks">
                 <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li></ul>`);
                 for(let page=1; page<=pageCounter; page++){
@@ -426,7 +414,7 @@ function getUserGenre(genre){
                     }
                     $('#gen-page-btn'+page).append(`<a href="#gen-page-`+page+`.genre-picks">`+page+`</a>`);
                 }
-                $('.pagination.genre-picks').append(`<li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li>`);
+                $('.pagination.genre-picks').append(`<li class="waves-effect right-chev" onclick="nextPage(this)"><a href="#!"><i class="material-icons">chevron_right</i></a></li></ul>`);
             let genBtnCount=$('.genre-picks > .page-btn').length;
             if (genBtnCount==1){ 
                 $(".genre-picks .left-chev").hide();
@@ -436,7 +424,6 @@ function getUserGenre(genre){
             $('#genre-results-area').append(`<div id="user-genre-picks"></div>`);
             let filmCounter=1;
             pageCounter=1;
-            //for (let page=1;page<=r.length;page++){
             for (page of r){
                 $('#user-genre-picks').append(`<div id="gen-page-`+pageCounter+`" class="film-card-container genre-picks">
                 <div class="table">`);
@@ -462,7 +449,7 @@ function getUserGenre(genre){
                 $('#genre-results-area').append(`</div></div>`);
                 }
             } else {
-                $('#genre-results-area').html(`<p>`+userToQuery+` has no films in this genre.</p>`);
+                $('#genre-results-area').html(`<div class="title-area"><p id="empty-msg">`+userToQuery+` has no films in this genre.</p></div>`);
             }
         }
     );
@@ -504,7 +491,7 @@ function getDirectors(){
             $("#director-table").empty();
             $('#director-error').empty();
             if (r.length===0){
-                $('#director-error').html("Sorry but there are no films by this director on our records.")
+                $('#director-error').html(`<div class="title-area">Sorry but there are no films by this director on our records.</div>`)
             } else {
                 $("#director-top-10").html(formatDirectorInput(directorToQuery)+"'s Top 10");
                 for(let i=0; i<r.length; i++){
