@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block users %}active{% endblock %}
 {% block content %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -10,18 +11,27 @@
             {% endfor %}
         </div>
 	</ul>
-{% endif %}
+    {% endif %}
 {% endwith %}
 
+
+<div class="title-area center">
+    <h2 id="user-title">{{username}}'s Films</h2>
+
+    {% set film_count = films|length %}
+    {% if film_count > 0 %}
+    <p>{{username}} has rated {{ film_count }} films</p>
+    {% else %}
+    <p>{{username}} doesn't have any films to view.</p>
+    {% endif %}
+</div>
+
 {% if films %}
-<h2 id="user-title">{{username}}'s Films</h2>
+<div class="search-title-container">
+    <h3>Search Film</h3>
+</div>
 
-{% set film_count = films|length %}
-{% if film_count > 0 %}
 
-<p>{{username}} has rated {{ film_count }} films</p>
-
-<h3>Search Film</h3>
 <div id="search-box-container">
     <div id="search-form-container">
         <div id="search-title-box" class="input-field">
@@ -39,57 +49,63 @@
 </div>
 
 <div class="carousel-container" id="userview-carousel">
-	<div class="prev hide-on-med-and-down">
-		&lt;</div> <div class="carousel carousel-slider center" data-indicators="false">
+	<div class="prev hide-on-med-and-down">&lt;</div>
+    <div class="carousel carousel-slider center" data-indicators="false">
 			{% for film in films %}
 			<div id="{{loop.index-1}}-{{film.imdbID}}" class="carousel-item center">
 				<div class="arrow-pic-container">
-					<div class="prev hide-on-large-and-up">
-						&lt;</div> <div class="poster-container">
-							<img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
+					<div class="prev hide-on-large-and-up">&lt;</div> 
+                    <div class="poster-container">
+						<img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
                     {% for rate in film.ratings %}
                     {% if rate.username==username %}
-							<div class="rating-overlay">
-								<div class="rating-container">
-									{{rate.rating}}
-								</div>
-							</div>
+                        <div class="rating-overlay">
+                            <div class="rating-container">
+                                {{rate.rating}}
+                            </div>
+                        </div>
 					</div>
 					<div class="next hide-on-large-and-up">&gt;</div>
 				</div>
-				<div class="table-container">
-					<table>
-						<tr>
-							<td class="left-field ">Year:</td>
-							<td class="right-field">{{film.year}}</td>
-						</tr>
-						<tr>
-							<td class="left-field ">Cast:</td>
-							<td class="right-field">{{film.cast}}</td>
-						</tr>
-						<tr>
-							<td class="left-field">Director:</td>
-							<td class="right-field">{{film.director}}</td>
-						</tr>
-						<tr>
-							<td class="left-field">Runtime:</td>
-							<td class="right-field">{{film.runtime}}</td>
-						</tr>
-						<tr>
-							<td class="left-field">Review:</td>
-							<td class="right-field">{{rate.review}}</td>
-						</tr>
-					</table>
-                    {% endif %}
-                    {% endfor %}
-				</div>
+				<div class="table-review-container">
+                    <div>
+                        <table>
+                            <tr>
+                                <td class="left-field ">Year:</td>
+                                <td class="right-field">{{film.year}}</td>
+                            </tr>
+                            <tr>
+                                <td class="left-field ">Cast:</td>
+                                <td class="right-field">{{film.cast}}</td>
+                            </tr>
+                            <tr>
+                                <td class="left-field">Director:</td>
+                                <td class="right-field">{{film.director}}</td>
+                            </tr>
+                            <tr>
+                                <td class="left-field">Runtime:</td>
+                                <td class="right-field">{{film.runtime}}</td>
+                            </tr>
+                            <tr>
+                            <td class="left-field" id="review-field">Review:</td><td class="right-field"></td>  
+                            </tr>
+                        </table>
+                        <div id="small-review">
+                            <p >{{rate.review}}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}	
 			</div>
-			{% endfor %}
-	</div>
-	<div class="next hide-on-med-and-down">&gt;</div>
+		{% endfor %}
+	    </div>
+	    <div class="next hide-on-med-and-down">&gt;</div>
 </div>
 
-<h3>{{username}}'s' Top Picks</h3>
+<div class="title-area">    
+    <h3>{{username}}'s' Top Picks</h3>
+</div>
 
 <ul class="pagination top-picks">
     <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
@@ -121,7 +137,11 @@
 {% set __ = pages_counted.append(1) %}
 {% endfor %}
 
-<h3>{{username}}'s' New Release Recommendations</h3>  
+{% if new_releases %}
+<div class="title-area">
+    <h3>{{username}}'s' New Release Recommendations</h3>  
+</div>
+{% endif %}      
 
 <ul class="pagination new-releases">
     <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
@@ -153,7 +173,10 @@
 {% set __ = nr_pages_counted.append(1) %}
 {% endfor %}    
 
-<h3>View {{username}}'s films by Genre</h3>
+
+<div class="title-area">
+    <h3>View {{username}}'s films by Genre</h3>
+</div>
 
 <div class="category-grid-container">
     <div class="box-grid">
@@ -171,12 +194,5 @@
 
 <div id="genre-results-area"></div>
 
-{% else %}
-<p>{{username}} doesn't currently have any film reviews.</p>
 {% endif %}
-{% endif %}
-
-<script language='javascript' type='text/javascript'>
-</script>
-
 {% endblock %}
