@@ -3,16 +3,25 @@
     margin: auto;
     padding: 15px 10px;
 }
-.form-container h2 {
+
+h2 {
+    font-size: 2.6rem;
+}
+
+h3 {
     font-size: 2.2rem;
 }
-.form-container h3 {
-    font-size: 2rem;
+.col .row {
+    margin-left: auto; 
+    margin-right: auto;
+}
+.input-field.col label {
+    left: 10px;
 }
 p, li {
     font-family: "Oxygen", sans-serif;
     color: #000;
-    font-size: 1.1rem;
+    font-size: 12px;
 }
 .input-field{
     width: inherit;
@@ -27,15 +36,19 @@ form button {
     padding: 4px 12px;
 }
 .btn.form-submit{
+    height: fit-content;
     align-self: center;
     background-color: #edeae5;
     color: black;
     font-family: "Oxygen", sans-serif;
     text-transform: capitalize;
 }
+.form-container .btn.form-submit{
+    margin: 0 0 20px 10px;
+}
 @media screen and (min-width: 450px) {
     p, li {
-        font-size: 1.4rem !important;
+        font-size: 14px !important;
     }
     .form-container{
         width: 80%;
@@ -44,6 +57,9 @@ form button {
 }
 
 @media screen and (min-width: 1300px) {
+    p, li {
+        font-size: 16px !important;
+    }
     .form-container{
         width: 50%;
     }
@@ -61,10 +77,10 @@ nav h1 {
 }
 nav .nav-wrapper {
     background-color: beige;
-    width: 100vw;
+    /*width: 100vw;*/
 }
 nav ul {
-    margin: 0 20px;
+    /*margin: 0 20px;*/
 }
 nav ul a {
     padding: 0 1vw;
@@ -77,7 +93,7 @@ p, li {
     font-size: 1.1rem;
 }
 #login-status{
-    margin-right: 20px;
+    margin-left: 20px;
     font-size: 16px !important;
     font-weight: bold;
 }
@@ -109,7 +125,7 @@ nav form {
     font-size: 16px;
     font-family: "Oxygen", sans-serif;
 }
-#user-search-btn{
+.user-search-btn{
     height: inherit;
     margin: 0px;
     padding: 8px;
@@ -117,7 +133,7 @@ nav form {
     color: white;
 }
 
-#user-search-btn img{
+.user-search-btn img{
     height: 25px;
     width: 25px;
 }
@@ -134,7 +150,7 @@ nav form {
 nav .suggestions {
     padding: 15px;
     border-bottom: 1px solid #9E9E9E;
-    font-size: 16px !important;
+    font-size: 14px !important;
 }
 nav .suggestions:hover {
     background-color: white;
@@ -148,12 +164,60 @@ nav .suggestions:hover {
     nav ul a {
         padding: 0 1.5vw;
     }
-    #right-nav {
+    .right-nav {
         padding-right: 20px;
     }
     h1 {
         font-size: 2.8rem;
     }
+}
+
+/***********************************************  Side Nav          */
+#slide-out.sidenav {
+    background-color: beige;
+}
+.sidenav-close{
+    float: right;
+    margin: 10px 10px 0 0;
+}
+.sidenav-close a{
+    color: black;
+}
+#slide-out .dropdown-content{
+    position: inherit;
+    height: auto !important;
+}
+#slide-out #side-dropdown {
+    height: auto;
+}
+#slide-out ul {
+    margin-top: 30px;
+    width: inherit;
+}
+#slide-out form {
+    display: flex;
+}
+#slide-out #side-user-search{
+    width: 240px;
+    height: 48px;
+    padding-left: 15px;
+}
+#slide-out .user-search-btn{
+    height: 49px;
+}
+#side-suggestion-description{
+    padding: 15px;
+    background-color: #f8f5f5;
+    font-style: italic;
+}
+#slide-out .suggestions {
+    padding: 15px;
+    border-bottom: 1px solid #9E9E9E;
+    font-size: 14px !important;
+}
+#slide-out .suggestions:hover {
+    background-color: white;
+    font-weight: bold;
 }
 /*********************************************** base.html - End    */
 
@@ -165,7 +229,7 @@ nav .suggestions:hover {
 }
 
 .bg-film img {
-    max-width: 100vw;
+    max-width: 95vw;
 }
 
 .tagline{
@@ -213,7 +277,7 @@ nav .suggestions:hover {
 
 .error {
     color: red;
-    font-size: 18px;
+    font-size: 18px !important;
 }
 
 @media screen and (min-width: 450px) {
@@ -270,11 +334,11 @@ nav .suggestions:hover {
 .carousel.carousel-slider {
     top: 0;
     left: 0;
-    height: 700px !important;
+    height: 800px !important; /* changed for mob. */
 }
 .arrow-pic-container {
     display: inline-flex;
-    height: 60%;
+    height: fit-content;  /*removed for mob. */
 }
 
 .prev, .next{
@@ -320,13 +384,16 @@ nav .suggestions:hover {
     justify-content: center;
     align-items: center;
 }
-.table-container html{
+.table-review-container html{
     line-height: 1;
 }
-.table-container{
-    height: inherit;
+.table-review-container{
+    margin-top: 20px;
+    height: 100%;
     background-color: beige;
+    align-items: center;
 }
+
 table {
     background-color: inherit;
 }
@@ -337,6 +404,7 @@ td{
     border: none;
 }
 .left-field{
+    width: 80px; /* added for mob. res */
     text-align: right;
     padding-left: 20px;
 }
@@ -345,16 +413,31 @@ td{
     padding-left: 15px;
 }
 
+#small-review p{
+    text-indent: 20px;
+    margin: 0;
+    padding: 0 15px 25px 15px;
+    text-align: left;
+    font-size: 14px !important;
+}
+
+@media screen and (min-width:450px){
+    .carousel.carousel-slider {
+        height: 750px !important;
+    }
+}
+
 @media screen and (min-width:700px){
     .carousel-container {
         margin: 50px 0;
         display: flex;
         justify-content: center;
-        width: 100vw;
+        width: 97vw;
     }
     .carousel.carousel-slider {
         height: 400px !important;
         width: 700px;
+        background-color: beige;
         border-radius: 5px;
         border: 1px solid black;
     }
@@ -380,11 +463,14 @@ td{
     .prev, .next{
         padding: 0 2vw;
     }
-    .table-container{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: inherit;
+    .table-review-container{
+        margin-top: 0;
+        background-color: beige;
+    }
+    #small-review p{
+        height: 110px;
+        overflow-y: auto;
+        margin: -5px 5px;
     }
 }
 
@@ -401,7 +487,12 @@ td{
     .prev, .next{
         padding: 0 8vw;
     }
+    #small-review p {
+        height: 160px;
+        margin: 0 0 0 17%;
+    }
 }
+
 
 /*********************************************** Film Carousel - End */
 
@@ -432,20 +523,48 @@ td{
 
 /*********************************************** Insert form         */
 
-#film-display {
+#search-icon-input-container{
     display: flex;
+    align-items: end;
+}
+.input-field.col #search-title-label{
+    left: 45px;
+}
+#search-img{
+    width: 25px;
+    height: 25px;
+    margin-top: 12px;
+    margin-right: 10px;
+}
+#film-display-container{
+    width: 100%;
+    display: grid;
+    justify-content: center;
+}
+#film-display {
+    display: grid;
+    grid-template-columns: 135px 135px;
+    grid-gap: 10px;
+    padding-left: 0px !important;
+}
+#film-display ul{
+    width: 135px;
+}
+#film-display ul li{
+    width: inherit;
+    text-align: center;
 }
 .film-data {
     display: block;
     text-align: center;
-    margin: 0 10px;
+    margin: 0;
 }
 .film-data p {
     font-size: 16px;
 }
  
 .film-data:hover {
-    border: 1px solid black;
+    background-color: beige;
     border-radius: 5px;
 }
 .film-data img {
@@ -457,10 +576,29 @@ td{
 form .row span {
     margin-left: 20px;
 }
-
+#rating ul.dropdown-content{
+    width: 40px !important;
+}
+@media screen and (min-width:700px){
+    #film-display {
+        grid-template-columns: 135px 135px 135px;
+        grid-gap: 15px;
+    }
+}
+@media screen and (min-width:900px){
+    #film-display {
+        grid-template-columns: 135px 135px 135px 135px;
+        grid-gap: 15px;
+    }
+}
 /*********************************************** Insert form - End   */
 
+.hiddendiv .common{
+    width: fit-content;
+}
 /*********************************************** Userview.html   */
+
+/*****************************************************************  Search box      */
 
 .err-msg-container{
     margin: 30vh auto;
@@ -473,29 +611,51 @@ form .row span {
     background-color: beige;
     font-size: 20px;
 }
-#search-box-container{
-    width: 50% !important;
+.title-area{
+    width: 95%;
     margin: auto;
+}
+.title-area p{
+    width: 95% !important;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 2.5%;
+    margin-inline-end: 2.5%;
+}
+.search-title-container{
+    width: 95%;
+    max-width: 400px;
+    margin: auto;
+}
+
+#search-box-container{
+    width: 95% !important;
+    max-width: 400px;
+    margin: auto auto 30px auto;
+    display: block;
+    justify-content: center;
     border: 1px solid black;
 }
 #search-form-container{
-    display: flex !important;
+    display: block ;
     width: 100%;
-    max-height: 110px;
+    margin: auto;
+    max-width: 300px;
     padding: 10px;
-    justify-content: space-around;
 }
 #search-form-container .dropdown-content{
     position: relative;
 }
 #search-title-box{
     display: block !important;
-    width: 300px !important;
 }
 #search-year-box{
     display: block !important;
     width: 170px !important;
+    height: 43px;
 }
+
 .dropdown-content li>span {
     color: black;
 }
@@ -506,8 +666,47 @@ form .row span {
 }
 #search-err-msg p{
     font-size: 16px !important;
+    text-align: center;
 }
 
+@media screen and (min-width:700px){
+    .title-area{
+        width: 95%;
+        margin: 0 5%;
+    }
+}
+
+@media screen and (min-width:900px){
+    .title-area{
+        width: 700px;
+        margin: auto;
+        text-align: center;
+    }
+    .search-title-container{
+        max-width: 700px;
+    }
+    #search-box-container{
+        max-width: 700px;
+        display: block;
+        justify-content: center;
+    }
+    #search-form-container{
+        display: flex !important;
+        width: 100%;
+        max-width: 600px;
+        max-height: 110px;
+        padding: 10px;
+        justify-content: space-around;
+    }
+    #search-form-container > div {
+        padding-right: 30px;
+    }
+    #search-title-box{
+        display: block !important;
+        width: 300px !important;
+    }
+}
+/*****************************************************************  Search box - End */
 .pagination{
     display: flex;
     justify-content: center;
@@ -522,6 +721,10 @@ form .row span {
 
 #tp-page-1.top-picks, #nr-page-1.new-releases, #gen-page-1.genre-picks{
     display: grid;
+}
+#empty-msg {
+    padding-bottom: 30px;
+    text-align: center;
 }
 
 /*********************************************** Userview.html - End   */
@@ -627,6 +830,7 @@ form .row span {
     display: flex;
     justify-content: center;
     height: fit-content;
+    padding: 20px 0;
 }
 .box-grid{
     display: grid;
@@ -734,6 +938,31 @@ form .row span {
     }
 }
 /*********************************************** Genres  - End       */
+/*********************************************** Director            */
+.director-container .btn.form-submit{
+   margin: 0 0 5px 45px;
+}
+
+.director-container{
+    padding: 20px 0;
+}
+.director-container .row {
+    margin-bottom: 0px;
+}
+
+@media screen and (min-width: 450px ){
+    .director-container{
+        padding: 20px 20px;
+    }
+}
+
+@media screen and (min-width: 900px ){
+    .director-container{
+        max-width: 450px !important;
+    }
+}
+
+/*********************************************** Director  - End       */
 
 /*********************************************** Decades       */
 .decade-item{
@@ -810,13 +1039,23 @@ form .row span {
 .imdb-link a:hover {
     font-weight: bold;
 }
-#imdb-logo {
+.imdb-link img {
+    margin-right: 10px;
     height: 40px;
+    width: 83px;
 }
+.table-container table{
+    max-width: 600px;
+    margin: 10px auto;
+}
+
 @media screen and (min-width:700px){
     .review-poster-container .poster-container {
         width: 270px;
         height: 400px;
+    }
+    .table-container{
+       
     }
 }
 @media screen and (min-width: 1000px){
@@ -827,7 +1066,11 @@ form .row span {
 }
 /*********************************************** Film info - End      */
 /*********************************************** Film Reviews         */
-
+.reviews-container{
+    margin: auto;
+    margin-bottom: 30px;
+    max-width: 700px;
+}
 .user-review-container.row{
     height: 100%;
     margin-bottom: 0px;
@@ -844,11 +1087,19 @@ form .row span {
     justify-content: center;
     align-items: center;
 }
+.user-rating .rating-overlay{
+    margin-left: 10px;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+}
 .user-review{
     padding-right: 20px;
 }
 span.username {
     float: right;
+    margin-right: 20px;
 }
 
 /*********************************************** Film Review - End       */
