@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config["MONGO_DBNAME"] = 'recomediaDB'
 app.config["MONGO_URI"] = os.environ.get('MONGO_URI')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-socketio = SocketIO(app)
+#socketio = SocketIO(app)
 app.config['API_KEY'] = os.environ.get('API_KEY')
 
 mongo = PyMongo(app)
