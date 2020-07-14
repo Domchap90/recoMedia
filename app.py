@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from flask import Flask, flash, render_template, redirect, request, session, app, url_for, jsonify
-from flask_socketio import SocketIO, emit
+#from flask_socketio import SocketIO, emit
 import requests
 import math
 import re
