@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
+{% block films %}active{% endblock %}
 {% block content %}
 
-<h2>Film Rankings</h2>
+<div class="title-area">
+    <h2>Film Rankings</h2>
 
-<h3>Overall Top 10</h3>
+    <h3>Overall Top 10</h3>
+</div>
 
 <div class="film-card-container">
 <div class="table">
@@ -20,9 +23,12 @@
 </div>
 </div>
 
-<h3>View other Top 10 rankings</h3>
+<div class="title-area">
+    <h3>View other Top 10 rankings</h3>
 
-<h4>By Genre</h4>
+    <h4>By Genre</h4>
+</div>
+
 <div class="category-grid-container">
     <div class="box-grid">
         <div id="Animation" class="box-item genre-item" onclick="getGenre(this)">Animation</div>
@@ -37,33 +43,48 @@
     </div>
 </div>
 
-<h3 id="genre-top-10"></h3>
+<div class="title-area">
+    <h3 id="genre-top-10"></h3>
+</div>
 
 <div class="film-card-container">
     <div id="genre-table" class="table">
     </div>
 </div>
 
-<h4>By Director</h4>
-
-<div class="row">     
-		<div class="input-field col s6">  
-			<input id="director_name" type="text" name="director_name"> <!--onblur="checkDirector(this)"-->
-			<label for="director_name" class="active"><span class="material-icons">search</span>Director's name</label>
-		</div>
+<div class="title-area">
+    <h4>By Director</h4>
 </div>
-<button class="btn waves-effect waves-light" type="submit" onclick="getDirectors()">See their top 10
-        <i class="material-icons right"></i>
-</button>
 
-<h3 id="director-top-10"></h3>
+<div id="search-box-container" class="director-container">
+    <div class="row">     
+            <div class="input-field col s12"> 
+                <div id="search-icon-input-container">
+                    <img id="search-img" src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon"> 
+                    <input id="director_name" type="text" name="director_name"> <!--onblur="checkDirector(this)"-->
+                </div>
+                <label id="search-title-label" for="director_name" class="active">Director's name</label>
+            </div>
+    </div>
+    <button class="btn form-submit" type="submit" onclick="getDirectors()">See their top 10
+            <i class="material-icons right"></i>
+    </button>
+</div>
+
+<div class="title-area">
+    <h3 id="director-top-10"></h3>
+</div>
+
 <div id="director-error" class="error"></div>
 <div class="film-card-container">
     <div id="director-table" class="table">
     </div>
 </div>
 
-<h4>By Decade</h4>
+<div class="title-area">
+    <h4>By Decade</h4>
+</div>
+
 <div class="category-grid-container">
     <div class="box-grid">
         <div id="1950" class="box-item decade-item" onclick="getDecade(this)">50's</div>
@@ -77,7 +98,9 @@
     </div>
 </div>
 
-<h3 id="decade-top-10"></h3>
+<div class="title-area">
+    <h3 id="decade-top-10"></h3>
+</div>
 
 <div class="film-card-container">
     <div id="decade-table" class="table">
