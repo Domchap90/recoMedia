@@ -14,7 +14,7 @@
     {% endif %}
 {% endwith %}
 
-
+{% if username %}
 <div class="title-area center">
     <h2 id="user-title">{{username}}'s Films</h2>
 
@@ -25,6 +25,7 @@
     <p>{{username}} doesn't have any films to view.</p>
     {% endif %}
 </div>
+{% endif %}
 
 {% if films %}
 <div class="search-title-container">
