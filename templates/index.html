@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block home %}active{% endblock %}
 {% block content %}
 <div class="bg-film">
     <img src="{{url_for('static',filename='images/movie-image.jpg')}}"" alt="projector image">
@@ -33,7 +34,7 @@
             {% endwith %}
             <div class="row">
                 <div class="input-field col s12">
-                    <input id="username" type="text" name="username" class="validate" /required>
+                    <input id="username" type="text" name="username" class="validate" oninput="checkUsername(this)" /required>
                     <label for="username" class="active">Username</label>
                 </div>
             </div>
