@@ -1,21 +1,24 @@
 {% extends 'base.html' %}
+{% block home %}active{% endblock %}
 {% block content %}
 
-<h2>Welcome {{username}}</h2>
+<div class="title-area"> 
+    <h2>Welcome {{username}}</h2>
 
-<h3>Your Films</h3>
-{% set film_count = films|length %}
-{% if film_count > 0 %}
+    <h3>Your Films</h3>
+    {% set film_count = films|length %}
+    {% if film_count > 0 %}
 
-<p>You have rated {{ film_count }} films</p>
+    <p>You have rated {{ film_count }} films</p>
+</div>
 
-<div class="carousel-container">
-    <div class="prev hide-on-med-and-down"><</div>
+<div class="carousel-container" id="userview-carousel">
+    <div class="prev hide-on-med-and-down">&lt;</div>
     <div class="carousel carousel-slider center" data-indicators="false">
     {% for film in films %}
-        <div class="carousel-item center">
+        <div id="{{loop.index-1}}-{{film.imdbID}}" class="carousel-item center">
             <div class="arrow-pic-container">
-                <div class="prev hide-on-large-and-up"><</div>
+                <div class="prev hide-on-large-and-up">&lt;</div>
                 <div class="poster-container">
                     <img src="{{film.poster}}" alt="{{film.title}} (poster unavailable)">
                 {% for rate in film.ratings %}
@@ -26,38 +29,43 @@
                         </div>
                     </div>
                 </div>
-                <div class="next hide-on-large-and-up">></div>
+                <div class="next hide-on-large-and-up">&gt;</div>
             </div>
-            <div class="table-container">
-                <table>
-                    <tr>
-                        <td class="left-field ">Year:</td><td class="right-field">{{film.year}}</td>
-                    </tr>
-                    <tr>
-                        <td class="left-field ">Cast:</td><td class="right-field">{{film.cast}}</td>
-                    </tr>
-                    <tr>
-                        <td class="left-field">Director:</td><td class="right-field">{{film.director}}</td>
-                    </tr>
-                    <tr>
-                        <td class="left-field">Runtime:</td><td class="right-field">{{film.runtime}}</td>    
-                    </tr>
-                    <tr>
-                        <td class="left-field">Review:</td><td class="right-field">{{rate.review}}</td>    
-                    </tr>
-                </table>
+            <div class="table-review-container">
+                <div>
+                    <table>
+                        <tr>
+                            <td class="left-field ">Year:</td><td class="right-field">{{film.year}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left-field ">Cast:</td><td class="right-field">{{film.cast}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left-field">Director:</td><td class="right-field">{{film.director}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left-field">Runtime:</td><td class="right-field">{{film.runtime}}</td>    
+                        </tr>
+                        <tr>
+                            <td class="left-field" id="review-field">Review:</td><td class="right-field"></td>  
+                        </tr>
+                    </table>
+                    <div id="small-review">
+                        <p >{{rate.review}}</p>
+                    </div>
+                </div>
             </div>
             {% endif %}
             {% endfor %}
-        
         </div>
-    
     {% endfor %}
     </div>
-    <div class="next hide-on-med-and-down">></div>
+    <div class="next hide-on-med-and-down">&gt;</div>
 </div>
 
-<h3>Your Top Picks</h3>
+<div class="title-area"> 
+    <h3>Your Top Picks</h3>
+</div>
 
 <ul class="pagination top-picks">
     <li class="disabled left-chev" onclick="prevPage(this)"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
@@ -92,7 +100,7 @@
 {% for film in page %}
     <div class="table-row film-card">
         <div class="table-cell rank">{{ loop.index + (pages_counted|length*films_per_page) }}</div>
-        <a class="table-cell title" id="title-{{film.imdbID}}" href="{{ url_for('get_reviews', filmID=film.imdbID, avgRating=film.averageRating) }}">
+        <a class="table-cell title" id="title-{{film.imdbID}}" href="#userview-carousel" onclick="goToFilmSlide('{{film.imdbID}}')">
         {{film.title}}</a>
         <div class="table-cell year" id="year-{{film.imdbID}}" >{{film.year}}</div>
         <div class="table-cell rating">{{film.ratings.0.rating}}</div>  
@@ -104,109 +112,115 @@
 {% set __ = pages_counted.append(1) %}
 {% endfor %}
 
-<h3>Add a rating to your collection.</h3>
+    <div class="title-area"> 
+        <h3>Add a rating to your collection.</h3>
+
 {% else %}
-<p>You don't currently have any film reviews.</p>
+        <p>You don't currently have any film reviews.</p>
 
-<h3>Rate your first film now.</h3>
+        <h3>Rate your first film now.</h3>
 {% endif %}
-<p>If creating a review for a previously added film, the latest review will overwrite the pre-existing one.</p>
+        <p>If creating a review for a previously added film, the latest review will overwrite the pre-existing one.</p>
+    </div>
 
-<form action="{{url_for('insert_rating', username='{{username}}' ) }}" method="POST" class="col s12">
-	{% with messages = get_flashed_messages(with_categories=true) %}
-	{% if messages %}
-	<ul class=flashes>
-		{% for category, message in messages %}
-		<div class="{{category}}">{{ message }}</div>
-		{% endfor %}
-	</ul>
-	{% endif %}
-	{% endwith %}
-	<div class="row">     
-		<div class="input-field col s6">
-            
-			<input id="film_title" type="text" name="film_title" class="validate autocomplete" onblur="getFilms(this)" onkeyup="getSuggestions(this)" /required>
-			<label for="film_title" class="active"><span class="material-icons">search</span>Film title</label>
-		</div>
-        <div class="row col s6" id="film-display">
-        </div>
-	</div>
-    <div class="row">
-		<div class="input-field col s12">
-            <select id="imdbID" name="imdbID" required>
-                <option value="" disabled selected>Imdb ID</option>              
-            </select>
-			<label>Imdb ID</label>
-		</div>
-	</div>
-	<div class="row">
-		<div class="input-field col s12">
-            <select id="Year" name="Year" onblur="getFilm(this)" required>
-                <option value="" disabled selected>Choose which year</option>              
-            </select>
-			<label>Year</label>
-		</div>
-	</div>
+<div class="form-container">
+    <form action="{{url_for('insert_rating', username='{{username}}' ) }}" method="POST" class="col s12">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+            <div class="{{category}}">{{ message }}</div>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
         <div class="row">     
-		<div class="input-field col s6">
-            <select id="Director" name="Director" required>
-                             
-            </select>
-			<label>Director</label>
-		</div>
-    </div>
-    <div class="row">     
-		<div class="input-field col s6">
-			<select id="Actors" name="Actors" required>
-                             
-            </select>
-			<label>Cast</label>
-		</div>
-    </div>
-    <div class="row">
-		<div class="input-field col s3">
-            <select id="Runtime" name="Runtime" required>
-                <option value="" disabled selected>Runtime</option>              
-            </select>
-			<label>Runtime</label>
-		</div>
-	</div>
-	<div class="row">
-		<div class="input-field col s12">
-            <select id="rating" name="rating" required>
-                <option value="" disabled selected>Give a rating</option>
-                <option value="0">0</option>  
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>  
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>          
-            </select>
-			<label>Rating</label>
-			<!--<input id="rating" type="number" name="rating" class="validate" oninput="check(this)" /required>
-			<label for="rating" class="active">Rating</label>-->
-		</div>
-	</div>
-	<div class="row">
-		<div class="input-field col s12">
-			<textarea id="review" name="review" maxlength="500" class="materialize-textarea" required></textarea>
-			<label for="review">Review<br></label>
-		</div>
-        <span>Please note the review is limited to 500 characters.</span>
-	</div>
-
-	<div class="row" id="err-msg">
-	</div>
-	<button class="btn form-submit" type="submit" name="action">Create Rating
-        <i class="material-icons right"></i>
-    </button>
-</form>
-
+            <div class="input-field col s12 m10 l8">
+                <div id="search-icon-input-container">
+                    <img id="search-img" src="{{url_for('static', filename='images/search-icon.png') }}" alt="Search-icon">
+                    <input id="film_title" type="text" name="film_title" class="validate autocomplete" onblur="getFilms(this)" onkeyup="getSuggestions(this)" /required>
+                </div>
+                <label id="search-title-label" for="film_title" class="active">Film title</label>
+            </div>
+            <div id="film-display-container">
+                <div class="row col s12" id="film-display">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s6 l4">
+                <select id="imdbID" name="imdbID" required>
+                    <option value="" disabled selected>Imdb ID</option>              
+                </select>
+                <label>Imdb ID</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s6 l4">
+                <select id="Year" name="Year" required>
+                    <option value="" disabled selected>Choose which year</option>            
+                </select>
+                <label>Year</label>
+            </div>
+        </div>
+            <div class="row">     
+            <div class="input-field col s10 l8">
+                <select id="Director" name="Director" required>             
+                </select>
+                <label>Director</label>
+            </div>
+        </div>
+        <div class="row">     
+            <div class="input-field col s12 l10">
+                <select id="Actors" name="Actors" required>
+                                
+                </select>
+                <label>Cast</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s4 l3">
+                <select id="Runtime" name="Runtime" required>
+                    <option value="" disabled selected>Runtime</option>              
+                </select>
+                <label>Runtime</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s3 l2">
+                <select id="rating" name="rating" required>
+                    <!--<option value="" disabled selected>Give a rating</option>-->
+                    <option value="0">0</option>  
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>  
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>          
+                </select>
+                <label>Rating</label>
+                <!--<input id="rating" type="number" name="rating" class="validate" oninput="check(this)" /required>
+                <label for="rating" class="active">Rating</label>-->
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <textarea id="review" name="review" maxlength="300" class="materialize-textarea" required></textarea>
+                <label for="review">Review<br></label>
+            </div>
+            <span>Please note the review is limited to 300 characters.</span>
+        </div>
+        <div class="row" id="err-msg">
+        </div>
+        <button class="btn form-submit" type="submit" name="action" onclick="checkRating()">Create Rating
+            <i class="material-icons right"></i>
+        </button>
+    </form>
+</div>
 
 <script language='javascript' type='text/javascript'>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
