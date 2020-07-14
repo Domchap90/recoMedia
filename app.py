@@ -33,12 +33,12 @@ def home():
 def make_session_permanent():
     # Keeps user logged in for a maximum of 5 mins.
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=1)
+    app.permanent_session_lifetime = timedelta(minutes=10)
 
-@socketio.on('disconnect')
+"""@socketio.on('disconnect')
 def disconnect_user():
     session.clear()
-    session.pop('username', None)  #amend these.
+    session.pop('username', None)  #amend these."""
     
 
 @app.route('/username_search_options', methods=['GET'])
