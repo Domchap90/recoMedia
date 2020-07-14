@@ -18,8 +18,12 @@
         <ul class="left hide-on-small-and-down" id="left-nav">
             <li id="login-status">Logged in as {{session['username']}}</li>
         </ul>
+        
+
+        <a href="{{url_for('userprofile')}}" class="brand-logo center">
+        {% else %}
+        <a href="{{url_for('home')}}" class="brand-logo center">
         {% endif %}
-        <a href="#!" class="brand-logo center">
             <h1>RecoMovie</h1>
         </a>
         <ul class="right right-nav hide-on-med-and-down">
