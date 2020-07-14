@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block login %}active{% endblock %}
 {% block content %}
 
 <div class="login-container">
@@ -17,7 +18,7 @@
         <input type="text" name="username" id="login-username" required>
         <label for="password">Password:</label>
         <input type="password" name="password" id="login-password" required >
-        <button type="submit">Login</button>
+        <button type="submit" class="btn form-submit">Login</button>
     </form>
 </div>
 
