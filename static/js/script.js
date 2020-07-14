@@ -20,8 +20,6 @@ $(document).ready(function(){
     let tpBtnCount=$('.top-picks > .page-btn').length;
     let nrBtnCount=$('.new-releases > .page-btn').length;
     // GenPageBtnCount initiated in the getUserGenre function (as AJAX btnCount will be 0 on document ready)
-    console.log(tpBtnCount)
-    console.log(nrBtnCount)
     // eliminates chevrons where only one or less pages exists within pagination.
     if (tpBtnCount<2){ 
         $(".top-picks .left-chev").hide();
@@ -37,23 +35,18 @@ $(document).ready(function(){
 
 function checkUsername(username){
     $("#username-err").remove();
-    console.log('checkUsername accessed.')
-    console.log(/[^A-z0-9]/.test(username.value))
     if( /[^A-z0-9]/.test(username.value) ){
         $("div #err-msg").append(`<p class="error" id="username-err">Username must be alphanumeric with no spaces.</p>`);
     }
 }
 
 function checkPasswordsMatch(input) {
-    console.log('checker function accessed.')
     $("#pw-match-err").remove();
     if ( $('#c_password').val() != $('#password').val() && $('#c_password').val().length>0 ) {
-        console.log('passwords not equal accessed.\n'+$('#password').val()+' , '+input.value)
         $("div #err-msg").append(`<p class="error" id="pw-match-err">Password Must be Matching.</p>`);
         $("#err-msg").css("color","red");
     } else {
         // input is valid -- reset the error message
-        console.log('passwords equal accessed.\n'+$('#password').val()+' , '+input.value)
         $("#pw-match-err").remove();
     }
 }
@@ -61,12 +54,10 @@ function checkPasswordsMatch(input) {
 //  Userprofile
     function getSuggestions(filmname){
         $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
-            console.log('getSuggestions entered.')
             /**** clear previous suggestions ****/
             let title_object = {};
             /**** autocomplete film suggestions ****/
             for (film of rawdata.Search){
-                console.log(film.Title)
                 title_object[film.Title] = "";
             }
 
@@ -88,7 +79,6 @@ function checkPasswordsMatch(input) {
 	        var id = 0;
 	        for ( film of rawdata.Search){
 	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && arrayNoDuplicatesID.indexOf(film.imdbID)===-1 && film.Type==='movie'){
-	                console.log("condition accessed.")
                     year_object[film.Year] = null;
                     id++;
                     $("#film-display").append(`<div class="film-data" id="`+film.imdbID+`"><img src="`+film.Poster+`"/>
@@ -101,33 +91,30 @@ function checkPasswordsMatch(input) {
             }
             
              $('#film-display > div').on('click', function() {
-                console.log('click registered.')
                 getFilm(this.id);
             });
 	    });
     }
 
     function getFilm(chosen_id) {
-        console.log('getFilm accessed.')
         let film_title=$('#film_title').val();
 	    $.get('https://www.omdbapi.com/?i='+chosen_id+'&apikey=61e49492',function(rawdata){
             let arrayNoDuplicatesID=[];
             var rawstring=JSON.stringify(rawdata);
-            omdb_data = JSON.parse(rawstring)
-            console.log('rawstring is ' +rawstring+', Actors = '+rawdata["Actors"]+' Director = '+rawdata["Director"]+' runtime= '+rawdata["Runtime"])           
-                
-                if (arrayNoDuplicatesID.indexOf(rawdata["imdbID"])===-1){
-                    let fields=["imdbID","Year","Director","Actors","Runtime"];
-                    for ( f of fields){
-                        $('#'+f).empty();
-                        createElem(f, chosen_id);
-                    }
-                    arrayNoDuplicatesID.push(film.imdbID);
-                    $('select').formSelect();
+            omdb_data = JSON.parse(rawstring);
+            if (arrayNoDuplicatesID.indexOf(rawdata["imdbID"])===-1){
+                let fields=["imdbID","Year","Director","Actors","Runtime"];
+                for ( f of fields){
+                    $('#'+f).empty();
+                    createElem(f, chosen_id);
                 }
+                arrayNoDuplicatesID.push(film.imdbID);
+                $('select').formSelect();
+            }
 
         });
     }
+
     function createElem(parentNode, film_id) {
         $.get('https://www.omdbapi.com/?i='+film_id+'&apikey=61e49492',function(rawdata){
             let option=document.createElement("OPTION");
@@ -136,7 +123,6 @@ function checkPasswordsMatch(input) {
             // Set the value of the class attribute
             att.value = rawdata[parentNode];                           
             option.setAttributeNode(att);                  
-            console.log(parentNode+' is '+option.value)
             option.innerHTML=rawdata[parentNode];
             document.getElementById(parentNode).appendChild(option);
         });
@@ -155,7 +141,6 @@ function checkRating(){
     let runtime= $('#Runtime').val();
     let rating= $('#rating').val();
     let review= $('#review').val();
-    console.log('runtime = '+runtime+', rating = '+rating+', review = '+review)
     if (runtime===null){
         $('#err-msg').append('<p class="error">A film has not yet been selected.</p>');
     }
@@ -170,7 +155,6 @@ function checkRating(){
 //  Userview 
 
 function getYears(filmname){
-    console.log("getYears entered.");
     $.get('https://www.omdbapi.com/?s='+filmname.value+'&apikey=61e49492',function(rawdata){
             /**** clear previous search data ****/
             $("#search-err-msg p").remove();
@@ -180,7 +164,6 @@ function getYears(filmname){
 	        let id = 0;
 	        for ( film of rawdata.Search){
 	            if (filmname.value.toLowerCase()===film.Title.toLowerCase() && film.Type==='movie'){
-	                console.log("condition accessed.")
                     year_object[film.Year] = null;
                     id++;
                     createElem("Year", film.imdbID);
@@ -201,7 +184,6 @@ function showFilmInCarousel() {
     if (filmYear==null){
         $("#search-err-msg").append(`<p class="error">Unfortunately this film doesn't exist in our database.</p>`);
     }
-    console.log('filmTitle is '+filmTitle+', filmYear is '+filmYear )
     $.get('https://www.omdbapi.com/?s='+filmTitle+'&apikey=61e49492',function(rawdata){
         let filmID=0;
         // Obtain film ID of searched film.
@@ -218,7 +200,6 @@ function showFilmInCarousel() {
 function goToFilmSlide(filmID){
     let elemCarousel = document.querySelector('.carousel');
     let instanceCarousel = M.Carousel.getInstance(elemCarousel);
-    console.log(filmID)
     // Find number of carousel-slide by finding the carousel-item ID matching with filmID above. 
     let carouselChildren=$('.carousel-slider').children();
     let carouselItemIdPattern = /^[0-9]+/;
@@ -228,7 +209,6 @@ function goToFilmSlide(filmID){
             filmSlide=child.id.match(carouselItemIdPattern);
         }
     }
-    console.log('filmSlide is '+filmSlide);
     if (filmSlide== undefined){
         $("#search-err-msg").append(`<p class="error">This user hasn't rated this film.</p>`);
     } else{
@@ -371,7 +351,6 @@ function nextPage(chevron) {
             // Extracts number from page button Id and decrements by 1 to establish previous page.
             nextBtnId='gen-page-btn'+(1+parseInt(String(currentBtnId).match(/\d+/)) ); 
         }
-        console.log('nextBtnId is '+nextBtnId)
         $('#'+currentBtnId).removeClass('active');
         $('#'+nextBtnId).addClass('active');
         /* Change page table showing */
@@ -381,27 +360,22 @@ function nextPage(chevron) {
 }
 
 function getUserGenre(genre){
-    console.log("getUserGenre accessed")
     let genreToQuery = $(genre).html();
     // extract username from Jinja template using regex.
     let usernamePattern = /^[a-z0-9]+/i;
     let userToQuery = $('#user-title').html().match(usernamePattern); 
     userToQuery=userToQuery[0];
-    console.log(userToQuery)
-    console.log(genreToQuery)
     $.getJSON($SCRIPT_ROOT + '/user_genre', 
     { genre: genreToQuery,
         username: userToQuery
     },
     function(data) {
         let r = data.result;
-        console.log("retrieval success")
         r=JSON.parse(r);
         $('#genre-results-area h3').remove();
         $('#user-genre-picks').remove();
         let pageCounter=0;
         for (page in r) {pageCounter++;}
-        console.log('pageCounter is '+pageCounter)
         if (pageCounter>0){
             $('#genre-results-area').html(`<div class="title-area"><h3>`+userToQuery+`'s `+genreToQuery+` Recommendations</h3></div>`);
             $('#genre-results-area').append(`<ul class="pagination genre-picks">
@@ -459,14 +433,17 @@ function getUserGenre(genre){
 
 function getGenre(genre){
     let genreToQuery = $(genre).html(); 
+    $("#genre-top-10").empty();
     $.getJSON($SCRIPT_ROOT + '/show_genre_films', { genre: genreToQuery },
     function(data) {
         let r = data.result;
-        console.log("retrieval success")
         r=JSON.parse(r);
-        console.log('result is of type '+typeof(r))
         $("#genre-table").empty();
-        $("#genre-top-10").html(genreToQuery+" Top 10");
+        if (r.length>0){
+            $("#genre-top-10").append(`<h3>`+genreToQuery+` Top 10</h3>`);
+        } else {
+            $("#genre-top-10").append(`<p id="empty-msg">There are currently no films reviewed in this genre.</p>`);
+        }
         for(let i=0; i<r.length; i++){
             $("#genre-table").append(`
             <a class="table-row film-card" href="`+$SCRIPT_ROOT+`/get_reviews/`+r[i].imdbID+`/`+r[i].averageRating+`">
@@ -486,14 +463,13 @@ function getDirectors(){
         { director: directorToQuery },
         function(data) {
             let r = data.result;
-            console.log("retrieval success")
             r=JSON.parse(r);
             $("#director-table").empty();
-            $('#director-error').empty();
+            $('#director-top-10').empty();
             if (r.length===0){
-                $('#director-error').html(`<div class="title-area">Sorry but there are no films by this director on our records.</div>`)
+                $('#director-top-10').append(`<p id="empty-msg">There are currently no films reviewed, for this director.</p>`);
             } else {
-                $("#director-top-10").html(formatDirectorInput(directorToQuery)+"'s Top 10");
+                $("#director-top-10").append(`<h3>`+formatDirectorInput(directorToQuery)+`'s Top 10</h3>`);
                 for(let i=0; i<r.length; i++){
                     $("#director-table").append(`
                     <a class="table-row film-card" href="`+$SCRIPT_ROOT+`/get_reviews/`+r[i].imdbID+`/`+r[i].averageRating+`">
@@ -528,10 +504,14 @@ function getDecade(year){
     $.getJSON($SCRIPT_ROOT + '/show_decade_films', { decade: decadeToQuery },
         function(data) {
             let r = data.result;
-            console.log("retrieval success")
             r=JSON.parse(r);
             $("#decade-table").empty();
-            $("#decade-top-10").html(decadeToQuery+"'s Top 10");
+            $("#decade-top-10").empty();
+            if (r.length>0){
+                $("#decade-top-10").append(`<h3>`+decadeToQuery+`'s Top 10</h3>`);
+            } else {
+                $("#decade-top-10").append(`<p id="empty-msg">There are currently no films reviewed, for this decade.</p>`);
+            }
             for(let i=0; i<r.length; i++){
                 $("#decade-table").append(`
                 <a class="table-row film-card" href="`+$SCRIPT_ROOT+`/get_reviews/`+r[i].imdbID+`/`+r[i].averageRating+`">
