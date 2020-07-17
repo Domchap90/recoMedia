@@ -5,11 +5,11 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
 	{% if messages %}
 	<ul class=flashes>
-        <div class='err-msg-container'>
+        <li class='err-msg-container'>
             {% for category, message in messages %}
             <div class="{{category}}">{{ message }}</div>
             {% endfor %}
-        </div>
+        </li>
 	</ul>
     {% endif %}
 {% endwith %}
@@ -37,7 +37,7 @@
     <div id="search-form-container">
         <div id="search-title-box" class="input-field">
             <label for="search-film-title">Title</label>
-            <input id="search-film-title" type="text" name="search-film-title" autocomplete="off" class="validate autocomplete" onkeyup="getSuggestions(this)" onchange="getYears(this)" /required>
+            <input id="search-film-title" type="text" name="search-film-title" autocomplete="off" class="validate autocomplete" onkeyup="getSuggestions(this)" onchange="getYears(this)" required>
         </div>
         <div id="search-year-box" class="input-field">
             <select id="Year" name="Year" required>            

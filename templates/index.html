@@ -2,7 +2,7 @@
 {% block home %}active{% endblock %}
 {% block content %}
 <div class="bg-film">
-    <img src="{{url_for('static',filename='images/movie-image.jpg')}}"" alt="projector image">
+    <img src="{{url_for('static',filename='images/movie-image.jpg')}}" alt="projector image">
 </div>
 <div class="tagline">
     <h1>What to watch? You've come to the right place.</h1>
@@ -19,7 +19,7 @@
 </div>
 
 <div class="form-container">
-    <h2>New to RecoMedia?</h2>
+    <h2>New to RecoMovie?</h2>
     <h3>Sign up here</h3>
     <div class="row">
         <form action="{{url_for('insert_user') }}" method="POST" class="col s12">
@@ -34,20 +34,20 @@
             {% endwith %}
             <div class="row">
                 <div class="input-field col s12">
-                    <input id="username" type="text" name="username" class="validate" oninput="checkUsername(this)" /required>
+                    <input id="username" type="text" name="username" class="validate" oninput="checkUsername(this)" required>
                     <label for="username" class="active">Username</label>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s12">
-                    <input id="password" type="password" name="password" minlength="9" class="validate" oninput="checkPasswordsMatch(this)" /required>
+                    <input id="password" type="password" name="password" minlength="9" class="validate" oninput="checkPasswordsMatch(this)" required>
                     <label for="password" class="active" data-error="Please enter your first name.">Password</label>
                 </div>
-                <div id="password-hint">Please note your password must be more than 8 characters long.</div>
+                <div id="form-hint">Please note your password must be more than 8 characters long.</div>
             </div>
             <div class="row">
                 <div class="input-field col s12">
-                    <input id="c_password" type="password" name="c_password" class="validate" oninput="checkPasswordsMatch(this)" /required>
+                    <input id="c_password" type="password" name="c_password" class="validate" oninput="checkPasswordsMatch(this)" required>
                     <label for="c_password" class="active">Confirm Password</label>
                 </div>
             </div>

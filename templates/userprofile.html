@@ -189,8 +189,6 @@
         <div class="row">
             <div class="input-field col s3 l2">
                 <select id="rating" name="rating" required>
-                    <!--<option value="" disabled selected>Give a rating</option>-->
-                    <option value="0">0</option>  
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -203,8 +201,6 @@
                     <option value="10">10</option>          
                 </select>
                 <label>Rating</label>
-                <!--<input id="rating" type="number" name="rating" class="validate" oninput="check(this)" /required>
-                <label for="rating" class="active">Rating</label>-->
             </div>
         </div>
         <div class="row">
@@ -212,7 +208,7 @@
                 <textarea id="review" name="review" maxlength="300" class="materialize-textarea" required></textarea>
                 <label for="review">Review<br></label>
             </div>
-            <span>Please note the review is limited to 300 characters.</span>
+            <div id="form-hint">Please note the review is limited to 300 characters.</div>
         </div>
         <div class="row" id="err-msg">
         </div>
@@ -222,7 +218,7 @@
     </form>
 </div>
 
-<script language='javascript' type='text/javascript'>
+<script>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
 
