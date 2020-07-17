@@ -261,7 +261,6 @@ nav .suggestions:hover {
     padding: 30px 5vw;
 }
 .main-description p{
-    margin-block-start: 0;
     color: white;
 }
 .main-description span{
@@ -573,7 +572,7 @@ td{
     height: auto;
     width: auto;
 }
-form #password-hint {
+form #form-hint {
     padding-left: 10px;
 }
 #rating ul.dropdown-content{
